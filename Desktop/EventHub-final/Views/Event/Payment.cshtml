@@ -1,0 +1,113 @@
+@model EventHub.ViewModels.EventPaymentViewModel
+@{
+    ViewData["Title"] = "Odeme";
+}
+
+<div class="page-header">
+    <div class="container">
+        <ul class="breadcrumb-custom">
+            <li><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+            <li><a asp-controller="Event" asp-action="Detail" asp-route-id="@Model.EventId">@Model.EventTitle</a></li>
+            <li>Odeme</li>
+        </ul>
+        <h1 class="page-header-title">Odeme</h1>
+        <p class="page-header-subtitle">Gercek odeme alinmaz; form onaylandiginda etkinlik kaydiniz tamamlanir.</p>
+    </div>
+</div>
+
+<section class="section-gap-sm">
+    <div class="container">
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-5">
+                <div class="event-info-card">
+                    <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                        <div>
+                            <div class="event-info-label">Etkinlik</div>
+                            <h2 style="font-size:1.45rem;margin:0;color:var(--text-primary);">@Model.EventTitle</h2>
+                        </div>
+                        <span class="badge-paid">@Model.Price.ToString("N0") TL</span>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="event-info-row">
+                        <div class="event-info-icon"><i class="bi bi-calendar3"></i></div>
+                        <div>
+                            <div class="event-info-label">Tarih</div>
+                            <div class="event-info-value">@Model.EventDate.ToString("dd MMMM yyyy, HH:mm", new System.Globalization.CultureInfo("tr-TR"))</div>
+                        </div>
+                    </div>
+                    <div class="event-info-row">
+                        <div class="event-info-icon"><i class="bi bi-geo-alt"></i></div>
+                        <div>
+                            <div class="event-info-label">Konum</div>
+                            <div class="event-info-value">@Model.Location</div>
+                        </div>
+                    </div>
+                    <div class="alert-custom alert-info mt-4">
+                        <span class="alert-icon"><i class="bi bi-info-circle"></i></span>
+                        <span>Bu ekranda yalnizca demo amacli odeme bilgisi alinir.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card-base">
+                    <h3 style="font-size:1.1rem;margin-bottom:1.25rem;color:var(--text-primary);">
+                        <i class="bi bi-credit-card" style="color:var(--color-brand);"></i> Odeme Bilgileri
+                    </h3>
+
+                    <form asp-action="CompletePayment" asp-controller="Event" method="post" data-loading="true">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="EventId" />
+                        <input type="hidden" asp-for="EventTitle" />
+                        <input type="hidden" asp-for="EventDate" />
+                        <input type="hidden" asp-for="Location" />
+                        <input type="hidden" asp-for="Price" />
+                        <input type="hidden" asp-for="Notes" />
+
+                        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+                        <div class="form-group">
+                            <label asp-for="PaymentFullName" class="form-label-custom"></label>
+                            <input asp-for="PaymentFullName" class="form-control-custom" placeholder="Ad Soyad" autocomplete="name" />
+                            <span asp-validation-for="PaymentFullName"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="CardNumber" class="form-label-custom"></label>
+                            <input asp-for="CardNumber" class="form-control-custom" placeholder="4242 4242 4242 4242" inputmode="numeric" autocomplete="cc-number" />
+                            <span asp-validation-for="CardNumber"></span>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label asp-for="ExpiryDate" class="form-label-custom"></label>
+                                    <input asp-for="ExpiryDate" class="form-control-custom" placeholder="12/28" autocomplete="cc-exp" />
+                                    <span asp-validation-for="ExpiryDate"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label asp-for="Cvv" class="form-label-custom"></label>
+                                    <input asp-for="Cvv" class="form-control-custom" placeholder="123" inputmode="numeric" autocomplete="cc-csc" />
+                                    <span asp-validation-for="Cvv"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-brand w-100 justify-content-center">
+                            <i class="bi bi-check-circle"></i> Odemeyi Onayla ve Kayit Ol
+                        </button>
+                        <a asp-action="Detail" asp-route-id="@Model.EventId" class="btn-ghost w-100 justify-content-center mt-2">
+                            Vazgec
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,63 @@
+@{
+    ViewData["Title"] = "Hakkimizda";
+}
+
+<div class="page-header">
+    <div class="container">
+        <ul class="breadcrumb-custom">
+            <li><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+            <li>Hakkimizda</li>
+        </ul>
+        <h1 class="page-header-title">Hakkimizda</h1>
+        <p class="page-header-subtitle">EventHub platformunun hikayesi.</p>
+    </div>
+</div>
+
+<section class="section-gap">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6 animate-on-scroll">
+                <div class="section-badge">
+                    <i class="bi bi-info-circle"></i> Biz Kimiz?
+                </div>
+                <h2 style="font-family:'Fraunces',serif;font-size:2.2rem;margin-bottom:1.25rem;color:var(--text-primary);">
+                    Etkinlikleri Bir Araya Getiriyoruz
+                </h2>
+                <p style="color:var(--text-secondary);line-height:1.8;margin-bottom:1rem;">
+                    EventHub, etkinlik organizatorleri ile katilimcilari bir araya getiren kapsamli bir yonetim platformudur.
+                    Workshop'lardan konferanslara, seminerlerden networking etkinliklerine kadar her tur etkinligi kolayla yonetebilirsiniz.
+                </p>
+                <p style="color:var(--text-secondary);line-height:1.8;">
+                    Platformumuz sayesinde etkinlik olusturma, kontenjan belirleme, katilimci yonetimi ve
+                    rol bazli yetkilendirme gibi tum ihtiyaclarinizi tek cercevede cozebilirsiniz.
+                </p>
+                <div class="mt-4">
+                    <a asp-controller="Event" asp-action="Index" class="btn-brand">
+                        <i class="bi bi-calendar2-event"></i> Etkinliklere Goz At
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 animate-on-scroll delay-200">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    @{
+                        var features = new[]
+                        {
+                            new { Icon = "bi-calendar-plus", Title = "Kolay Yonetim", Desc = "Etkinlik olusturma ve yonetimi cok kolay." },
+                            new { Icon = "bi-shield-lock", Title = "Guvenli", Desc = "Role-based yetkilendirme sistemi." },
+                            new { Icon = "bi-phone", Title = "Responsive", Desc = "Her cihazda kusursuz deneyim." },
+                            new { Icon = "bi-people", Title = "Topluluk", Desc = "Buyuyen kullanici toplulugu." }
+                        };
+                    }
+                    @foreach (var f in features)
+                    {
+                        <div class="card-base" style="text-align:center;">
+                            <i class="bi @f.Icon" style="font-size:1.8rem;color:var(--color-brand);display:block;margin-bottom:0.75rem;"></i>
+                            <h6 style="font-weight:700;margin-bottom:0.3rem;color:var(--text-primary);">@f.Title</h6>
+                            <p style="font-size:0.82rem;color:var(--text-muted);margin:0;">@f.Desc</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

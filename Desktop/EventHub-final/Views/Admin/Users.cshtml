@@ -1,0 +1,149 @@
+@model List<EventHub.Models.ApplicationUser>
+@{
+    ViewData["Title"] = "Kullanici Yonetimi";
+    var userRoles = ViewBag.UserRoles as Dictionary<string, IList<string>>;
+    var userRegCounts = ViewBag.UserRegistrationCounts as Dictionary<string, int>;
+    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+}
+
+<div class="page-header">
+    <div class="container">
+        <ul class="breadcrumb-custom">
+            <li><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+            <li><a asp-controller="Admin" asp-action="Index">Admin</a></li>
+            <li>Kullanicilar</li>
+        </ul>
+        <h1 class="page-header-title">Kullanici Yonetimi</h1>
+        <p class="page-header-subtitle">Platforma kayitli tum kullanicilari yonetin.</p>
+    </div>
+</div>
+
+<section class="section-gap-sm">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Sidebar -->
+            <div class="col-lg-2 col-md-3">
+                <div class="admin-sidebar animate-on-scroll">
+                    <div class="admin-sidebar-title">Yonetim</div>
+                    <a asp-controller="Admin" asp-action="Index" class="admin-nav-item">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                    <a asp-controller="Admin" asp-action="Events" class="admin-nav-item">
+                        <i class="bi bi-calendar-event"></i> Etkinlikler
+                    </a>
+                    <a asp-controller="Admin" asp-action="Users" class="admin-nav-item active">
+                        <i class="bi bi-people"></i> Kullanicilar
+                    </a>
+                    <div style="height:1px;background:var(--border-color);margin:0.75rem 0;"></div>
+                    <a asp-controller="Event" asp-action="Create" class="admin-nav-item" style="color:var(--color-brand)!important;">
+                        <i class="bi bi-plus-circle"></i> Yeni Etkinlik
+                    </a>
+                </div>
+            </div>
+
+            <!-- Icerik -->
+            <div class="col-lg-10 col-md-9">
+                <div class="d-flex justify-content-between align-items-center mb-3 animate-on-scroll">
+                    <p style="color:var(--text-muted);font-size:0.9rem;margin:0;">
+                        Toplam <strong style="color:var(--text-primary);">@Model.Count</strong> kullanici
+                    </p>
+                </div>
+
+                <div class="card-base animate-on-scroll" style="padding:0;overflow:hidden;">
+                    @if (Model.Any())
+                    {
+                        <div style="overflow-x:auto;">
+                            <table class="table-custom">
+                                <thead>
+                                    <tr>
+                                        <th>Kullanici</th>
+                                        <th>E-posta</th>
+                                        <th>Rol</th>
+                                        <th>Katilim</th>
+                                        <th>Uyelik</th>
+                                        <th>Islemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in Model)
+                                    {
+                                        var roles = userRoles != null && userRoles.ContainsKey(user.Id) ? userRoles[user.Id] : new List<string>();
+                                        var regCount = userRegCounts != null && userRegCounts.ContainsKey(user.Id) ? userRegCounts[user.Id] : 0;
+                                        var isAdmin = roles.Contains("Admin");
+                                        var isSelf = user.Id == currentUserId;
+
+                                        <tr style="@(isSelf ? "background:rgba(232,93,38,0.03);" : "")">
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div style="width:34px;height:34px;border-radius:50%;background:var(--gradient-brand);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;font-weight:700;flex-shrink:0;">
+                                                        @user.FullName.Substring(0, 1).ToUpper()
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-weight:600;color:var(--text-primary);font-size:0.88rem;">
+                                                            @user.FullName
+                                                            @if (isSelf)
+                                                            {
+                                                                <span style="font-size:0.72rem;color:var(--color-brand);margin-left:0.3rem;">(Siz)</span>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style="font-size:0.85rem;color:var(--text-muted);">@user.Email</td>
+                                            <td>
+                                                @if (isAdmin)
+                                                {
+                                                    <span class="status-badge role-admin">Admin</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="status-badge role-user">Kullanici</span>
+                                                }
+                                            </td>
+                                            <td style="font-size:0.88rem;">
+                                                <span style="font-weight:600;color:var(--text-primary);">@regCount</span>
+                                                <span style="color:var(--text-muted);"> etkinlik</span>
+                                            </td>
+                                            <td style="font-size:0.82rem;color:var(--text-muted);white-space:nowrap;">
+                                                @user.CreatedAt.ToString("dd.MM.yyyy")
+                                            </td>
+                                            <td>
+                                                @if (!isSelf)
+                                                {
+                                                    <form asp-controller="Admin" asp-action="ToggleUserRole" method="post"
+                                                          style="display:inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="userId" value="@user.Id" />
+                                                        <button type="submit"
+                                                                class="@(isAdmin ? "btn-danger-soft" : "btn-success-soft") btn-sm"
+                                                                data-confirm="@(isAdmin ? user.FullName + " kullanicisinin Admin rolunu kaldirmak istediginizden emin misiniz?" : user.FullName + " kullanicisini Admin yapmak istediginizden emin misiniz?")"
+                                                                title="@(isAdmin ? "Admin Rolunu Kaldir" : "Admin Yap")">
+                                                            <i class="bi bi-@(isAdmin ? "arrow-down-circle" : "arrow-up-circle")"></i>
+                                                            @(isAdmin ? "Indirge" : "Yuselт")
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <span style="font-size:0.78rem;color:var(--text-muted);">—</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i class="bi bi-people"></i></div>
+                            <h3 class="empty-state-title">Kullanici Bulunamadi</h3>
+                        </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>

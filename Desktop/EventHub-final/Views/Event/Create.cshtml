@@ -1,0 +1,238 @@
+@model EventHub.ViewModels.EventFormViewModel
+@using EventHub.Models
+@{
+    ViewData["Title"] = "Yeni Etkinlik Olustur";
+}
+
+<!-- Sayfa Basligi -->
+<div class="page-header">
+    <div class="container">
+        <ul class="breadcrumb-custom">
+            <li><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+            <li><a asp-controller="Admin" asp-action="Events">Admin - Etkinlikler</a></li>
+            <li>Yeni Etkinlik</li>
+        </ul>
+        <h1 class="page-header-title">Yeni Etkinlik Olustur</h1>
+        <p class="page-header-subtitle">Tum alanlari eksiksiz doldurun ve etkinligi yayinlayin.</p>
+    </div>
+</div>
+
+<section class="section-gap-sm">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+
+                <form asp-action="Create" asp-controller="Event" method="post" data-loading="true" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Validasyon ozeti -->
+                    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+                    <!-- TEMEL BILGILER KARTI -->
+                    <div class="card-base mb-4 animate-on-scroll">
+                        <h5 style="font-weight:700;color:var(--text-primary);margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;">
+                            <span style="width:28px;height:28px;background:var(--gradient-brand);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:0.8rem;font-weight:800;flex-shrink:0;">1</span>
+                            Temel Bilgiler
+                        </h5>
+
+                        <!-- Etkinlik Basligi -->
+                        <div class="form-group">
+                            <label asp-for="Title" class="form-label-custom"></label>
+                            <input asp-for="Title" class="form-control-custom"
+                                   placeholder="Etkinlik basligi giriniz..." />
+                            <span asp-validation-for="Title" class="field-validation-error"></span>
+                        </div>
+
+                        <!-- Kisa Ozet -->
+                        <div class="form-group">
+                            <label asp-for="Summary" class="form-label-custom"></label>
+                            <input asp-for="Summary" class="form-control-custom"
+                                   placeholder="Etkinlik listesinde gorunecek kisa tanim..." />
+                            <span asp-validation-for="Summary" class="field-validation-error"></span>
+                        </div>
+
+                        <!-- Aciklama -->
+                        <div class="form-group">
+                            <label asp-for="Description" class="form-label-custom"></label>
+                            <textarea asp-for="Description" class="form-control-custom"
+                                      rows="7"
+                                      placeholder="Etkinlik hakkinda ayrintili bilgi veriniz. Katilimcilar ne ogrenecek, kimler katilmali vb."
+                                      style="resize:vertical;"></textarea>
+                            <span asp-validation-for="Description" class="field-validation-error"></span>
+                        </div>
+
+                        <!-- Kategori ve Durum yan yana -->
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group mb-0">
+                                    <label asp-for="Category" class="form-label-custom"></label>
+                                    <select asp-for="Category" class="form-control-custom"
+                                            asp-items="Html.GetEnumSelectList<EventCategory>()">
+                                        <option value="">-- Kategori Secin --</option>
+                                    </select>
+                                    <span asp-validation-for="Category" class="field-validation-error"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-0">
+                                    <label asp-for="Status" class="form-label-custom"></label>
+                                    <select asp-for="Status" class="form-control-custom"
+                                            asp-items="Html.GetEnumSelectList<EventStatus>()">
+                                    </select>
+                                    <span asp-validation-for="Status" class="field-validation-error"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TARIH VE KONUM KARTI -->
+                    <div class="card-base mb-4 animate-on-scroll delay-100">
+                        <h5 style="font-weight:700;color:var(--text-primary);margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;">
+                            <span style="width:28px;height:28px;background:var(--gradient-brand);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:0.8rem;font-weight:800;flex-shrink:0;">2</span>
+                            Tarih, Saat ve Konum
+                        </h5>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="EventDate" class="form-label-custom"></label>
+                                    <input asp-for="EventDate" type="datetime-local"
+                                           asp-format="{0:yyyy-MM-ddTHH:mm}"
+                                           class="form-control-custom" />
+                                    <span asp-validation-for="EventDate" class="field-validation-error"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="EndDate" class="form-label-custom"></label>
+                                    <input asp-for="EndDate" type="datetime-local"
+                                           asp-format="{0:yyyy-MM-ddTHH:mm}"
+                                           class="form-control-custom" />
+                                    <span asp-validation-for="EndDate" class="field-validation-error"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Location" class="form-label-custom"></label>
+                            <input asp-for="Location" class="form-control-custom"
+                                   placeholder="Etkinlik adresi veya sehir..." />
+                            <span asp-validation-for="Location" class="field-validation-error"></span>
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <label asp-for="OnlineUrl" class="form-label-custom"></label>
+                            <input asp-for="OnlineUrl" class="form-control-custom"
+                                   placeholder="https://zoom.us/j/... (Online etkinlik ise)" />
+                            <span asp-validation-for="OnlineUrl" class="field-validation-error"></span>
+                        </div>
+                    </div>
+
+                    <!-- KONTENJAN VE UCRET KARTI -->
+                    <div class="card-base mb-4 animate-on-scroll delay-200">
+                        <h5 style="font-weight:700;color:var(--text-primary);margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;">
+                            <span style="width:28px;height:28px;background:var(--gradient-brand);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:0.8rem;font-weight:800;flex-shrink:0;">3</span>
+                            Kontenjan ve Ucret
+                        </h5>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group mb-0">
+                                    <label asp-for="MaxCapacity" class="form-label-custom"></label>
+                                    <input asp-for="MaxCapacity" type="number" min="0"
+                                           class="form-control-custom"
+                                           placeholder="0 girerseniz sinir olmaz" />
+                                    <span asp-validation-for="MaxCapacity" class="field-validation-error"></span>
+                                    <small style="color:var(--text-muted);font-size:0.78rem;">0 = Sinir yok</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-0">
+                                    <label asp-for="CoverImageUrl" class="form-label-custom"></label>
+                                    <input asp-for="CoverImageUrl" class="form-control-custom"
+                                           placeholder="https://... gorsel URL (opsiyonel)" />
+                                    <span asp-validation-for="CoverImageUrl" class="field-validation-error"></span>
+                                    <small style="color:var(--text-muted);font-size:0.78rem;">URL kullanabilir ya da asagidan dosya yukleyebilirsin.</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-0">
+                                    <label asp-for="CoverImageFile" class="form-label-custom"></label>
+                                    <input asp-for="CoverImageFile" class="form-control-custom" type="file" accept="image/*" />
+                                    <span asp-validation-for="CoverImageFile" class="field-validation-error"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <!-- Ucret Toggle -->
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <label asp-for="IsPaid" class="form-label-custom mb-0"></label>
+                                <div style="font-size:0.82rem;color:var(--text-muted);">Katilim icin ucret alinacak mi?</div>
+                            </div>
+                            <div style="position:relative;">
+                                <input asp-for="IsPaid" type="checkbox" id="isPaidToggle"
+                                       style="display:none;"
+                                       onchange="document.getElementById('priceGroup').style.display = this.checked ? 'block' : 'none'" />
+                                <label for="isPaidToggle"
+                                       style="width:48px;height:26px;background:var(--border-color);border-radius:13px;cursor:pointer;display:block;position:relative;transition:background 0.2s;">
+                                    <span style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:white;border-radius:50%;transition:transform 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.2);"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="priceGroup" style="display:@(Model.IsPaid ? "block" : "none");">
+                            <div class="form-group mb-0">
+                                <label asp-for="Price" class="form-label-custom"></label>
+                                <div style="position:relative;">
+                                    <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-weight:600;">₺</span>
+                                    <input asp-for="Price" type="number" min="0" step="0.01"
+                                           class="form-control-custom"
+                                           style="padding-left:2rem;"
+                                           placeholder="0.00" />
+                                </div>
+                                <span asp-validation-for="Price" class="field-validation-error"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AKSIYONLAR -->
+                    <div class="d-flex gap-3 justify-content-end animate-on-scroll delay-300">
+                        <a asp-controller="Admin" asp-action="Events" class="btn-ghost">
+                            <i class="bi bi-x-circle"></i> Vazgec
+                        </a>
+                        <button type="submit" class="btn-brand">
+                            <i class="bi bi-check-circle"></i> Etkinligi Olustur
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Ucret toggle icin gorsel geri bildirim
+        var isPaidCheck = document.getElementById('isPaidToggle');
+        var toggleLabel = isPaidCheck ? isPaidCheck.nextElementSibling : null;
+        if (isPaidCheck && toggleLabel) {
+            function updateToggle() {
+                var knob = toggleLabel.querySelector('span');
+                if (isPaidCheck.checked) {
+                    toggleLabel.style.background = 'var(--color-brand)';
+                    if (knob) knob.style.transform = 'translateX(22px)';
+                } else {
+                    toggleLabel.style.background = 'var(--border-color)';
+                    if (knob) knob.style.transform = 'translateX(0)';
+                }
+            }
+            isPaidCheck.addEventListener('change', updateToggle);
+            updateToggle();
+        }
+    </script>
+}

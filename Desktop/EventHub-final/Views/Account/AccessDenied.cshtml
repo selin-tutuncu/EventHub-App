@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Erisim Engellendi";
+}
+
+<section style="min-height:70vh;display:flex;align-items:center;background:var(--gradient-hero);">
+    <div class="container text-center">
+        <div class="animate-on-scroll">
+            <div style="font-size:5rem;margin-bottom:1rem;animation:float 3s ease-in-out infinite;">
+                🔒
+            </div>
+            <h1 style="font-family:'Fraunces',serif;font-size:3rem;font-weight:600;color:var(--text-primary);margin-bottom:0.75rem;">
+                Erisim Engellendi
+            </h1>
+            <p style="color:var(--text-secondary);font-size:1.05rem;max-width:440px;margin:0 auto 2rem;">
+                Bu sayfaya erismek icin gerekli yetkiye sahip degilsiniz.
+                Yonetici (Admin) rolü gerekmektedir.
+            </p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a asp-controller="Home" asp-action="Index" class="btn-brand">
+                    <i class="bi bi-house"></i> Ana Sayfaya Don
+                </a>
+                <a asp-controller="Event" asp-action="Index" class="btn-ghost">
+                    <i class="bi bi-calendar2-event"></i> Etkinliklere Git
+                </a>
+            </div>
+        </div>
+    </div>
+</section>

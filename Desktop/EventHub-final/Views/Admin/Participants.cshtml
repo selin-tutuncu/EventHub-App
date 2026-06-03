@@ -1,0 +1,159 @@
+@model List<EventHub.ViewModels.ParticipantViewModel>
+@using EventHub.Models
+@{
+    ViewData["Title"] = "Katilimci Listesi";
+    var eventTitle = ViewBag.EventTitle as string ?? "Etkinlik";
+    var eventId = (int)(ViewBag.EventId ?? 0);
+}
+
+<div class="page-header">
+    <div class="container">
+        <ul class="breadcrumb-custom">
+            <li><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+            <li><a asp-controller="Admin" asp-action="Events">Admin - Etkinlikler</a></li>
+            <li>Katilimcilar</li>
+        </ul>
+        <h1 class="page-header-title">Katilimci Listesi</h1>
+        <p class="page-header-subtitle">@eventTitle</p>
+    </div>
+</div>
+
+<section class="section-gap-sm">
+    <div class="container">
+
+        <!-- Ozet -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="admin-stat-card animate-on-scroll">
+                    <div class="admin-stat-icon orange"><i class="bi bi-people"></i></div>
+                    <div>
+                        <div class="admin-stat-value">@Model.Count</div>
+                        <div class="admin-stat-label">Toplam Kayitli</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="admin-stat-card animate-on-scroll delay-100">
+                    <div class="admin-stat-icon green"><i class="bi bi-check-circle"></i></div>
+                    <div>
+                        <div class="admin-stat-value">@Model.Count(p => p.AttendanceConfirmed)</div>
+                        <div class="admin-stat-label">Katilim Onayli</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Geri Butonu ve Export -->
+        <div class="d-flex justify-content-between align-items-center mb-3 animate-on-scroll">
+            <a asp-controller="Event" asp-action="Detail" asp-route-id="@eventId"
+               class="btn-ghost btn-sm">
+                <i class="bi bi-arrow-left"></i> Etkinlige Don
+            </a>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <a asp-controller="Admin" asp-action="ExportParticipantsExcel" asp-route-eventId="@eventId"
+                   class="btn-ghost btn-sm">
+                    <i class="bi bi-file-earmark-excel"></i> Excel
+                </a>
+                <a asp-controller="Admin" asp-action="ExportParticipantsPdf" asp-route-eventId="@eventId"
+                   class="btn-ghost btn-sm">
+                    <i class="bi bi-file-earmark-pdf"></i> PDF
+                </a>
+                <div style="font-size:0.85rem;color:var(--text-muted);margin-left:0.5rem;">
+                    @Model.Count kisi kayitli
+                </div>
+            </div>
+        </div>
+
+        <!-- Katilimci Tablosu -->
+        <div class="card-base animate-on-scroll" style="padding:0;overflow:hidden;">
+            @if (Model.Any())
+            {
+                <div style="overflow-x:auto;">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Ad Soyad</th>
+                                <th>E-posta</th>
+                                <th>Kayit Tarihi</th>
+                                <th>Durum</th>
+                                <th>Katilim</th>
+                                <th>Not</th>
+                                <th>Islem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int idx = 1;}
+                            @foreach (var p in Model)
+                            {
+                                <tr>
+                                    <td style="color:var(--text-muted);">@idx</td>
+                                    <td>
+                                        <div style="font-weight:600;color:var(--text-primary);">@p.FullName</div>
+                                    </td>
+                                    <td style="font-size:0.85rem;color:var(--text-muted);">@p.Email</td>
+                                    <td style="font-size:0.82rem;white-space:nowrap;">
+                                        @p.RegisteredAt.ToString("dd.MM.yyyy HH:mm")
+                                    </td>
+                                    <td>
+                                        @switch (p.Status)
+                                        {
+                                            case RegistrationStatus.Confirmed:
+                                                <span class="status-badge status-published">Onaylı</span>
+                                                break;
+                                            case RegistrationStatus.Pending:
+                                                <span class="status-badge status-draft">Beklemede</span>
+                                                break;
+                                            default:
+                                                <span class="status-badge status-cancelled">Iptal</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (p.AttendanceConfirmed)
+                                        {
+                                            <span class="badge-registered">
+                                                <i class="bi bi-check-circle-fill"></i> Katildi
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span style="font-size:0.78rem;color:var(--text-muted);">Bekleniyor</span>
+                                        }
+                                    </td>
+                                    <td style="font-size:0.82rem;color:var(--text-muted);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                                        title="@p.Notes">
+                                        @(string.IsNullOrEmpty(p.Notes) ? "—" : p.Notes)
+                                    </td>
+                                    <td>
+                                        <form asp-controller="Admin" asp-action="ToggleAttendance" method="post"
+                                              style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="registrationId" value="@p.RegistrationId" />
+                                            <input type="hidden" name="eventId" value="@eventId" />
+                                            <button type="submit"
+                                                    class="@(p.AttendanceConfirmed ? "btn-danger-soft" : "btn-success-soft") btn-sm"
+                                                    title="@(p.AttendanceConfirmed ? "Katilimi Kaldir" : "Katilim Onayla")">
+                                                <i class="bi bi-@(p.AttendanceConfirmed ? "x-circle" : "check-circle")"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                idx++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon"><i class="bi bi-people"></i></div>
+                    <h3 class="empty-state-title">Katilimci Yok</h3>
+                    <p style="font-size:0.9rem;">Bu etkinlige henuz kayit yapilmamis.</p>
+                </div>
+            }
+        </div>
+
+    </div>
+</section>

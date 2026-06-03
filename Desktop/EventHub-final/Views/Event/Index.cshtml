@@ -1,0 +1,143 @@
+@model List<EventHub.ViewModels.EventListItemViewModel>
+@using EventHub.Models
+@{
+    ViewData["Title"] = "Etkinlikler";
+    var searchTerm = ViewBag.SearchTerm as string;
+    var selectedCategory = ViewBag.SelectedCategory as EventCategory?;
+    var categories = ViewBag.Categories as IEnumerable<EventCategory>;
+}
+
+<!-- Sayfa Basligi -->
+<div class="page-header">
+    <div class="container">
+        <ul class="breadcrumb-custom">
+            <li><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+            <li>Etkinlikler</li>
+        </ul>
+        <h1 class="page-header-title">Etkinlikler</h1>
+        <p class="page-header-subtitle">
+            Workshop, konferans ve seminerler. Tum etkinlikleri bul, kayit ol.
+        </p>
+    </div>
+</div>
+
+<section class="section-gap-sm">
+    <div class="container">
+
+        <!-- Filtre Cubugu -->
+        <form method="get" asp-action="Index" asp-controller="Event">
+            <div class="filter-bar animate-on-scroll">
+
+                <!-- Arama Kutusu -->
+                <div class="filter-search">
+                    <i class="bi bi-search"></i>
+                    <input type="text"
+                           id="searchInput"
+                           name="search"
+                           class="form-control-custom"
+                           placeholder="Etkinlik ara..."
+                           value="@searchTerm" />
+                </div>
+
+                <!-- Kategori Filtreleri -->
+                <div class="filter-category">
+                    <a asp-action="Index" asp-controller="Event"
+                       asp-route-search="@searchTerm"
+                       class="filter-chip @(selectedCategory == null ? "active" : "")">
+                        Tumu
+                    </a>
+                    @if (categories != null)
+                    {
+                        @foreach (var cat in categories)
+                        {
+                            var catDisplay = cat switch
+                            {
+                                EventCategory.Workshop => "Workshop",
+                                EventCategory.Conference => "Konferans",
+                                EventCategory.Seminar => "Seminer",
+                                EventCategory.Networking => "Networking",
+                                EventCategory.Hackathon => "Hackathon",
+                                EventCategory.Training => "Egitim",
+                                EventCategory.Concert => "Konser",
+                                EventCategory.Cinema => "Sinema",
+                                EventCategory.Theater => "Tiyatro",
+                                EventCategory.Sports => "Spor",
+                                EventCategory.Festival => "Festival",
+                                EventCategory.Exhibition => "Sergi",
+                                EventCategory.SeminarSeries => "Seminer Serisi",
+                                _ => "Diger"
+                            };
+                            <a asp-action="Index" asp-controller="Event"
+                               asp-route-search="@searchTerm"
+                               asp-route-category="@((int)cat)"
+                               class="filter-chip @(selectedCategory == cat ? "active" : "")">
+                                @catDisplay
+                            </a>
+                        }
+                    }
+                </div>
+
+                <!-- Arama Butonu -->
+                <button type="submit" class="btn-brand btn-sm">
+                    <i class="bi bi-funnel"></i> Filtrele
+                </button>
+
+            </div>
+        </form>
+
+        <!-- Sonuc Sayisi -->
+        <div class="d-flex justify-content-between align-items-center mb-4 animate-on-scroll">
+            <p style="color:var(--text-muted);font-size:0.9rem;margin:0;">
+                <strong style="color:var(--text-primary);">@Model.Count</strong> etkinlik bulundu
+                @if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    <span> - "@searchTerm" araması</span>
+                }
+            </p>
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-controller="Event" asp-action="Create" class="btn-brand btn-sm">
+                    <i class="bi bi-plus-circle"></i> Yeni Etkinlik
+                </a>
+            }
+        </div>
+
+        <!-- Etkinlik Kartlari Grid -->
+        @if (Model.Any())
+        {
+            <div class="row g-4">
+                @for (int ei = 0; ei < Model.Count; ei++)
+                {
+                    var ev = Model[ei];
+                    var delayVal = Math.Min(ei * 100, 400);
+                    var delayClass = "delay-" + delayVal.ToString();
+                    <div class="col-xl-4 col-lg-4 col-md-6 animate-on-scroll @delayClass">
+                        @await Html.PartialAsync("_EventCard", ev)
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <!-- Bos Durum -->
+            <div class="empty-state animate-on-scroll" style="min-height:400px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                <div class="empty-state-icon"><i class="bi bi-search"></i></div>
+                <h3 class="empty-state-title">Etkinlik Bulunamadi</h3>
+                <p style="font-size:0.9rem;max-width:320px;">
+                    @if (!string.IsNullOrEmpty(searchTerm))
+                    {
+                        <span>"@searchTerm" ile eslesen bir etkinlik bulunamadi. Farkli bir arama deneyin.</span>
+                    }
+                    else
+                    {
+                        <span>Su an yayinlanan etkinlik bulunmuyor. Daha sonra tekrar kontrol edin.</span>
+                    }
+                </p>
+                <a asp-action="Index" asp-controller="Event" class="btn-outline-brand mt-3">
+                    <i class="bi bi-arrow-left"></i> Tum Etkinliklere Don
+                </a>
+            </div>
+        }
+
+    </div>
+</section>

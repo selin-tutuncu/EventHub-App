@@ -1,0 +1,199 @@
+@model EventHub.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Kayit Ol";
+    Layout = "_Layout";
+}
+
+<section style="min-height:calc(100vh - 80px);display:flex;align-items:center;background:var(--gradient-hero);padding:3rem 0;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+
+                <div class="card-base animate-on-scroll" style="padding:2.5rem;">
+
+                    <div class="text-center mb-2">
+                        <div style="width:56px;height:56px;background:var(--gradient-brand);border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem;">
+                            <i class="bi bi-person-plus-fill" style="color:white;"></i>
+                        </div>
+                        <h1 style="font-family:'Fraunces',serif;font-size:1.8rem;font-weight:600;margin-bottom:0.3rem;color:var(--text-primary);">
+                            Hesap Olustur
+                        </h1>
+                        <p style="color:var(--text-muted);font-size:0.9rem;">
+                            Etkinliklere katilmak icin kayit olun
+                        </p>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <form asp-action="Register" asp-controller="Account" method="post" data-loading="true">
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+                        <div class="form-group">
+                            <label asp-for="FullName" class="form-label-custom"></label>
+                            <div style="position:relative;">
+                                <i class="bi bi-person" style="position:absolute;left:0.9rem;top:50%;transform:translateY(-50%);color:var(--text-muted);"></i>
+                                <input asp-for="FullName" class="form-control-custom"
+                                       placeholder="Kullanıcı adı giriniz"
+                                       style="padding-left:2.5rem;" />
+                            </div>
+                            <span asp-validation-for="FullName" class="field-validation-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Email" class="form-label-custom"></label>
+                            <div style="position:relative;">
+                                <i class="bi bi-envelope" style="position:absolute;left:0.9rem;top:50%;transform:translateY(-50%);color:var(--text-muted);"></i>
+                                <input asp-for="Email" class="form-control-custom" type="email"
+                                       placeholder="ornek@email.com"
+                                       style="padding-left:2.5rem;" />
+                            </div>
+                            <span asp-validation-for="Email" class="field-validation-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Password" class="form-label-custom"></label>
+                            <div style="position:relative;">
+                                <i class="bi bi-lock" style="position:absolute;left:0.9rem;top:50%;transform:translateY(-50%);color:var(--text-muted);"></i>
+                                <input asp-for="Password" class="form-control-custom" type="password"
+                                       placeholder="En az 8 karakter"
+                                       style="padding-left:2.5rem;"
+                                       id="passwordReg" />
+                                <button type="button" onclick="togglePassReg()"
+                                        style="position:absolute;right:0.9rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);padding:0;">
+                                    <i class="bi bi-eye" id="eyeReg"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Password" class="field-validation-error"></span>
+
+                            <div id="strengthBar" style="margin-top:0.5rem;display:none;">
+                                <div style="height:4px;background:var(--border-color);border-radius:2px;overflow:hidden;">
+                                    <div id="strengthFill" style="height:100%;width:0;transition:width 0.3s,background 0.3s;border-radius:2px;"></div>
+                                </div>
+                                <div id="strengthText" style="font-size:0.75rem;margin-top:0.25rem;color:var(--text-muted);"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="ConfirmPassword" class="form-label-custom"></label>
+                            <div style="position:relative;">
+                                <i class="bi bi-lock-fill" style="position:absolute;left:0.9rem;top:50%;transform:translateY(-50%);color:var(--text-muted);"></i>
+                                <input asp-for="ConfirmPassword" class="form-control-custom" type="password"
+                                       placeholder="Sifrenizi tekrar girin"
+                                       style="padding-left:2.5rem;"
+                                       id="confirmPassReg" />
+                                <button type="button" onclick="togglePassConfirm()"
+                                        style="position:absolute;right:0.9rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);padding:0;">
+                                    <i class="bi bi-eye" id="eyeConfirm"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="ConfirmPassword" class="field-validation-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Bio" class="form-label-custom"></label>
+                            <textarea asp-for="Bio" class="form-control-custom" rows="2"
+                                      placeholder="Kendinizi kisaca tanitin... (opsiyonel)"
+                                      style="resize:none;"></textarea>
+                            <span asp-validation-for="Bio" class="field-validation-error"></span>
+                        </div>
+
+                        <div class="form-group d-flex align-items-start gap-2">
+                            <input type="checkbox" id="termsCheck" required
+                                   style="width:16px;height:16px;accent-color:var(--color-brand);margin-top:2px;flex-shrink:0;" />
+                            <label for="termsCheck" style="font-size:0.85rem;color:var(--text-secondary);cursor:pointer;">
+                                <a href="#" style="font-weight:600;">Kullanim Kosullarini</a> ve
+                                <a href="#" style="font-weight:600;">Gizlilik Politikasini</a> okudum, kabul ediyorum.
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn-brand w-100" style="justify-content:center;">
+                            <i class="bi bi-person-check"></i>
+                            Hesap Olustur
+                        </button>
+
+                    </form>
+
+                    <div class="divider"></div>
+
+                    <p style="text-align:center;font-size:0.88rem;color:var(--text-muted);margin:0;">
+                        Zaten hesabiniz var mi?
+                        <a asp-controller="Account" asp-action="Login" style="font-weight:600;">
+                            Giris Yapin
+                        </a>
+                    </p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Sifre goster/gizle - passwordReg
+        function togglePassReg() {
+            var input = document.getElementById('passwordReg');
+            var icon = document.getElementById('eyeReg');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+
+        // Sifre goster/gizle - confirmPassReg
+        function togglePassConfirm() {
+            var input = document.getElementById('confirmPassReg');
+            var icon = document.getElementById('eyeConfirm');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+
+        // Sifre guc gostergesi
+        // Not: Regex icindeki ozel karakterler icin JavaScript string kullanildi
+        var passInput = document.getElementById('passwordReg');
+        var strengthBar = document.getElementById('strengthBar');
+        var strengthFill = document.getElementById('strengthFill');
+        var strengthText = document.getElementById('strengthText');
+
+        var reUpper = new RegExp('[A-Z]');
+        var reDigit = new RegExp('[0-9]');
+        var reSpecial = new RegExp('[^a-zA-Z0-9]');
+
+        if (passInput) {
+            passInput.addEventListener('input', function () {
+                var val = this.value;
+                if (val.length === 0) {
+                    strengthBar.style.display = 'none';
+                    return;
+                }
+                strengthBar.style.display = 'block';
+
+                var score = 0;
+                if (val.length >= 8) score++;
+                if (reUpper.test(val)) score++;
+                if (reDigit.test(val)) score++;
+                if (reSpecial.test(val)) score++;
+
+                var labels = ['Zayif', 'Orta', 'Iyi', 'Guclu'];
+                var colors = ['#e74c3c', '#f39c12', '#3498db', '#27ae60'];
+                var widths = ['25%', '50%', '75%', '100%'];
+
+                strengthFill.style.width = widths[score - 1] || '10%';
+                strengthFill.style.background = colors[score - 1] || '#e74c3c';
+                strengthText.textContent = 'Sifre Gucu: ' + (labels[score - 1] || 'Cok Zayif');
+                strengthText.style.color = colors[score - 1] || '#e74c3c';
+            });
+        }
+    </script>
+}

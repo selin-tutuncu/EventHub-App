@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+@using Microsoft.AspNetCore.Mvc.Controllers
+@using Microsoft.EntityFrameworkCore
+@using EventHub.Models
+@inject EventHub.Data.ApplicationDbContext DbContext
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var actionDescriptor = ViewContext.ActionDescriptor as ControllerActionDescriptor;
+    var currentController = actionDescriptor?.ControllerName ?? string.Empty;
+    var currentAction = actionDescriptor?.ActionName ?? string.Empty;
+    ApplicationUser? currentUser = null;
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        currentUser = await UserManager.GetUserAsync(User);
+    }
+
+    bool IsActive(string controller, string action)
+        => string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
+           && string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase);
+
+}
+<html lang="tr" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="EventHub - Etkinlik ve Workshop Yonetim Platformu" />
+    <title>@ViewData["Title"] - EventHub</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- Google Fonts (Outfit + Fraunces) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet" />
+
+    <!-- Ana Stil Dosyasi -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- Sayfa ozel stiller icin yer -->
+    @await RenderSectionAsync("Styles", required: false)
+
+    <!-- Tema: localStorage'dan tema oku, FOUC (Flash of Unstyled Content) onle -->
+    <script>
+        (function () {
+            var t = localStorage.getItem('eventhub-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+</head>
+<body>
+
+    <!-- ============================================================
+         NAVIGASYON
+         ============================================================ -->
+    <nav class="navbar navbar-eventhub navbar-expand-lg">
+        <div class="container">
+
+            <!-- Marka Logosu -->
+            <a class="navbar-brand-text" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-calendar-event-fill" style="color: var(--color-brand);"></i>
+                Event<span>Hub</span>
+            </a>
+
+            <!-- Mobil Toggle -->
+            <button class="navbar-toggler border-0" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#navbarMain"
+                    style="color: var(--text-primary);">
+                <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+            </button>
+
+            <!-- Navigasyon Linkleri -->
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto gap-1 mt-2 mt-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link-custom @(IsActive("Home", "Index") ? "active" : "")"
+                           asp-controller="Home" asp-action="Index">
+                            Ana Sayfa
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link-custom @(IsActive("Event", "Index") ? "active" : "")"
+                           asp-controller="Event" asp-action="Index">
+                            Etkinlikler
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link-custom @(IsActive("Home", "About") ? "active" : "")" asp-controller="Home" asp-action="About">
+                            Hakkimizda
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link-custom @(IsActive("Home", "Contact") ? "active" : "")" asp-controller="Home" asp-action="Contact">
+                            Iletisim
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Sag Taraf: Kullanici + Tema Toggle -->
+                <div class="d-flex align-items-center gap-3 mt-2 mt-lg-0">
+
+                    <!-- Tema Toggle Butonu -->
+                    <button class="theme-toggle" onclick="toggleTheme()" title="Tema Degistir" type="button">
+                        <div class="theme-toggle-knob">
+                            <span id="themeIcon"></span>
+                        </div>
+                    </button>
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        var userNotifications = currentUser == null
+                            ? new List<UserNotification>()
+                            : await DbContext.UserNotifications
+                                .Include(n => n.Event)
+                                .Where(n => n.UserId == currentUser.Id)
+                                .OrderByDescending(n => n.CreatedAt)
+                                .Take(4)
+                                .ToListAsync();
+                        var unreadNotificationCount = userNotifications.Count(n => !n.IsRead);
+                        var displayName = !string.IsNullOrWhiteSpace(currentUser?.FullName)
+                            ? currentUser!.FullName
+                            : (User.Identity.Name?.Split('@')[0] ?? "U");
+                        var avatarText = string.IsNullOrWhiteSpace(displayName) ? "U" : displayName.Substring(0, 1).ToUpper();
+
+                        <div class="dropdown">
+                            <button class="btn-ghost btn-sm dropdown-toggle position-relative"
+                                    type="button" data-bs-toggle="dropdown"
+                                    style="padding:0.6rem 0.75rem;">
+                                <i class="bi bi-bell"></i>
+                                @if (unreadNotificationCount > 0)
+                                {
+                                    <span style="position:absolute;top:-4px;right:-4px;background:var(--color-brand);color:#fff;border-radius:999px;font-size:0.7rem;line-height:1;padding:0.18rem 0.4rem;font-weight:700;">
+                                        @unreadNotificationCount
+                                    </span>
+                                }
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border"
+                                style="background:var(--bg-card);border-color:var(--border-color)!important;border-radius:var(--border-radius-md);min-width:320px;padding:0.5rem;">
+                                <li class="px-3 pt-2 pb-1">
+                                    <div style="font-size:0.85rem;font-weight:700;color:var(--text-primary);">Bildirimler</div>
+                                    <div style="font-size:0.75rem;color:var(--text-muted);">Bekleme listesi ve sistem mesajları</div>
+                                </li>
+                                <li><hr class="dropdown-divider" style="border-color:var(--border-color);" /></li>
+                                @if (userNotifications.Any())
+                                {
+                                    foreach (var notification in userNotifications)
+                                    {
+                                        <li class="px-3 py-2">
+                                            <div style="display:flex;flex-direction:column;gap:0.25rem;">
+                                                <div style="font-size:0.82rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:0.35rem;">
+                                                    @if (!notification.IsRead)
+                                                    {
+                                                        <span style="width:8px;height:8px;border-radius:50%;background:var(--color-brand);display:inline-block;"></span>
+                                                    }
+                                                    @notification.Title
+                                                </div>
+                                                <div style="font-size:0.76rem;color:var(--text-secondary);line-height:1.45;">
+                                                    @(notification.Message.Length > 90 ? notification.Message.Substring(0, 90) + "..." : notification.Message)
+                                                </div>
+                                                <div style="font-size:0.72rem;color:var(--text-muted);">
+                                                    @notification.CreatedAt.ToString("dd.MM HH:mm")
+                                                    @if (!string.IsNullOrWhiteSpace(notification.Event?.Title))
+                                                    {
+                                                        <span>• @notification.Event!.Title</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </li>
+                                    }
+                                }
+                                else
+                                {
+                                    <li class="px-3 py-3 text-center" style="color:var(--text-muted);font-size:0.82rem;">
+                                        Yeni bildirim yok
+                                    </li>
+                                }
+                                <li><hr class="dropdown-divider" style="border-color:var(--border-color);" /></li>
+                                <li class="px-3 pb-2">
+                                    <a asp-controller="Account" asp-action="Notifications" class="btn-brand btn-sm w-100 justify-content-center">
+                                        Tüm Bildirimler
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Giris Yapilmis: Kullanici Menusu -->
+                        <div class="dropdown">
+                            <button class="btn-ghost btn-sm dropdown-toggle d-flex align-items-center gap-2"
+                                    type="button" data-bs-toggle="dropdown">
+                                <div style="width:30px;height:30px;border-radius:50%;background:var(--gradient-brand);display:flex;align-items:center;justify-content:center;color:white;font-size:0.8rem;font-weight:700;overflow:hidden;">
+                                    @if (!string.IsNullOrWhiteSpace(currentUser?.ProfileImageUrl))
+                                    {
+                                        <img src="@currentUser.ProfileImageUrl" alt="@displayName"
+                                             style="width:100%;height:100%;object-fit:cover;" />
+                                    }
+                                    else
+                                    {
+                                        @avatarText
+                                    }
+                                </div>
+                                <span class="d-none d-md-inline" style="font-size:0.88rem;color:var(--text-secondary);">
+                                    @displayName
+                                </span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border"
+                                style="background:var(--bg-card);border-color:var(--border-color)!important;border-radius:var(--border-radius-md);min-width:200px;padding:0.5rem;">
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                       asp-controller="Account" asp-action="Profile"
+                                       style="color:var(--text-secondary);border-radius:var(--border-radius-sm);">
+                                        <i class="bi bi-person" style="color:var(--color-brand);"></i> Profilim
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                       asp-controller="Event" asp-action="MyEvents"
+                                       style="color:var(--text-secondary);border-radius:var(--border-radius-sm);">
+                                        <i class="bi bi-calendar-check" style="color:var(--color-brand);"></i> Etkinliklerim
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                       asp-controller="Account" asp-action="Notifications"
+                                       style="color:var(--text-secondary);border-radius:var(--border-radius-sm);">
+                                        <i class="bi bi-bell" style="color:var(--color-brand);"></i> Bildirimlerim
+                                    </a>
+                                </li>
+
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li><hr class="dropdown-divider" style="border-color:var(--border-color);" /></li>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                           asp-controller="Admin" asp-action="Index"
+                                           style="color:var(--color-brand);border-radius:var(--border-radius-sm);">
+                                            <i class="bi bi-speedometer2"></i> Admin Panel
+                                        </a>
+                                    </li>
+                                }
+
+                                <li><hr class="dropdown-divider" style="border-color:var(--border-color);" /></li>
+                                <li>
+                                    <form asp-controller="Account" asp-action="Logout" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit"
+                                                class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                                style="color:var(--color-danger);border-radius:var(--border-radius-sm);">
+                                            <i class="bi bi-box-arrow-right"></i> Cikis Yap
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Giris Yapilmamis: Login / Kayit Butonlari -->
+                        <a asp-controller="Account" asp-action="Login" class="btn-ghost btn-sm">
+                            Giris Yap
+                        </a>
+                        <a asp-controller="Account" asp-action="Register" class="btn-brand btn-sm">
+                            <i class="bi bi-person-plus"></i> Kayit Ol
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============================================================
+         BILDIRIM ALANI (TempData mesajlari)
+         ============================================================ -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="container mt-3">
+            <div class="alert-custom alert-success" data-auto-close="true">
+                <span class="alert-icon"><i class="bi bi-check-circle-fill"></i></span>
+                <span>@TempData["Success"]</span>
+                <button class="alert-close" onclick="closeAlert(this.parentElement)" type="button">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="container mt-3">
+            <div class="alert-custom alert-error" data-auto-close="true">
+                <span class="alert-icon"><i class="bi bi-x-circle-fill"></i></span>
+                <span>@TempData["Error"]</span>
+                <button class="alert-close" onclick="closeAlert(this.parentElement)" type="button">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+    }
+
+    <!-- ============================================================
+         ANA ICERIK ALANI
+         ============================================================ -->
+    <main>
+        @RenderBody()
+    </main>
+
+    <!-- ============================================================
+         FOOTER
+         ============================================================ -->
+    <footer class="footer-eventhub">
+        <div class="container">
+            <div class="row g-4">
+
+                <!-- Marka Kolonu -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-brand">
+                        <i class="bi bi-calendar-event-fill" style="color:var(--color-brand-light)"></i>
+                        Event<span>Hub</span>
+                    </div>
+                    <p class="footer-desc">
+                        Etkinlikleri, workshop'lari ve seminerleri yonetin.
+                        Katilimcilarinizla baglanin, deneyimlerinizi paylasın.
+                    </p>
+                </div>
+
+                <!-- Hizli Baglantılar -->
+                <div class="col-lg-2 col-md-3 col-6">
+                    <h6 class="footer-heading">Kesfet</h6>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Event" asp-action="Index">Etkinlikler</a></li>
+                        <li><a asp-controller="Home" asp-action="About">Hakkimizda</a></li>
+                        <li><a asp-controller="Home" asp-action="Contact">Iletisim</a></li>
+                    </ul>
+                </div>
+
+                <!-- Hesap -->
+                <div class="col-lg-2 col-md-3 col-6">
+                    <h6 class="footer-heading">Hesap</h6>
+                    <ul class="footer-links">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li><a asp-controller="Account" asp-action="Profile">Profilim</a></li>
+                            <li><a asp-controller="Event" asp-action="MyEvents">Etkinliklerim</a></li>
+                        }
+                        else
+                        {
+                            <li><a asp-controller="Account" asp-action="Login">Giris Yap</a></li>
+                            <li><a asp-controller="Account" asp-action="Register">Kayit Ol</a></li>
+                        }
+                    </ul>
+                </div>
+
+                <!-- Yasal -->
+                <div class="col-lg-2 col-md-3 col-6">
+                    <h6 class="footer-heading">Yasal</h6>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Home" asp-action="Privacy">Gizlilik</a></li>
+                        <li><a href="#">Kullanim Kosullari</a></li>
+                        <li><a href="#">KVKK</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Footer Alt Kisim -->
+            <div class="footer-bottom">
+                <span style="color:rgba(255,255,255,0.4)">
+                    &copy; @DateTime.Now.Year EventHub. Tum haklari saklıdır.
+                </span>
+                <span style="color:rgba(255,255,255,0.3)">
+                    Programlama Dersi - Proje 2
+                </span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle (Popper dahil) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Ana JavaScript Dosyasi -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Sayfa ozel script'ler icin yer -->
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

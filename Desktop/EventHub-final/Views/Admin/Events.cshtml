@@ -1,0 +1,195 @@
+@model List<EventHub.ViewModels.EventListItemViewModel>
+@using EventHub.Models
+@{
+    ViewData["Title"] = "Etkinlik Yonetimi";
+}
+
+<div class="page-header">
+    <div class="container">
+        <ul class="breadcrumb-custom">
+            <li><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+            <li><a asp-controller="Admin" asp-action="Index">Admin</a></li>
+            <li>Etkinlikler</li>
+        </ul>
+        <h1 class="page-header-title">Etkinlik Yonetimi</h1>
+        <p class="page-header-subtitle">Tum etkinlikleri goruntuleyin, yayinlayin veya silin.</p>
+    </div>
+</div>
+
+<section class="section-gap-sm">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Sidebar -->
+            <div class="col-lg-2 col-md-3">
+                <div class="admin-sidebar animate-on-scroll">
+                    <div class="admin-sidebar-title">Yonetim</div>
+                    <a asp-controller="Admin" asp-action="Index" class="admin-nav-item">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                    <a asp-controller="Admin" asp-action="Events" class="admin-nav-item active">
+                        <i class="bi bi-calendar-event"></i> Etkinlikler
+                    </a>
+                    <a asp-controller="Admin" asp-action="Users" class="admin-nav-item">
+                        <i class="bi bi-people"></i> Kullanicilar
+                    </a>
+                    <div style="height:1px;background:var(--border-color);margin:0.75rem 0;"></div>
+                    <a asp-controller="Event" asp-action="Create" class="admin-nav-item" style="color:var(--color-brand)!important;">
+                        <i class="bi bi-plus-circle"></i> Yeni Etkinlik
+                    </a>
+                </div>
+            </div>
+
+            <!-- Icerik -->
+            <div class="col-lg-10 col-md-9">
+                <div class="d-flex justify-content-between align-items-center mb-3 animate-on-scroll">
+                    <p style="color:var(--text-muted);font-size:0.9rem;margin:0;">
+                        Toplam <strong style="color:var(--text-primary);">@Model.Count</strong> etkinlik
+                    </p>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a asp-controller="Admin" asp-action="ExportEventsExcel" class="btn-ghost btn-sm">
+                            <i class="bi bi-file-earmark-excel"></i> Excel
+                        </a>
+                        <a asp-controller="Admin" asp-action="ExportEventsPdf" class="btn-ghost btn-sm">
+                            <i class="bi bi-file-earmark-pdf"></i> PDF
+                        </a>
+                        <a asp-controller="Event" asp-action="Create" class="btn-brand btn-sm">
+                            <i class="bi bi-plus-circle"></i> Yeni Etkinlik
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-base animate-on-scroll" style="padding:0;overflow:hidden;">
+                    @if (Model.Any())
+                    {
+                        <div style="overflow-x:auto;">
+                            <table class="table-custom">
+                                <thead>
+                                    <tr>
+                                        <th>Gorsel</th>
+                                        <th>Etkinlik</th>
+                                        <th>Tarih</th>
+                                        <th>Kategori</th>
+                                        <th>Durum</th>
+                                        <th>Katilimci</th>
+                                        <th>Islemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var ev in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @if (!string.IsNullOrWhiteSpace(ev.CoverImageUrl))
+                                                {
+                                                    <img src="@ev.CoverImageUrl" alt="@ev.Title" class="event-thumb" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="event-thumb" style="display:flex;align-items:center;justify-content:center;background:var(--bg-accent);color:var(--color-brand);">
+                                                        <i class="bi bi-image"></i>
+                                                    </div>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div style="font-weight:600;color:var(--text-primary);font-size:0.9rem;">
+                                                    @(ev.Title.Length > 40 ? ev.Title.Substring(0, 40) + "..." : ev.Title)
+                                                </div>
+                                                <div style="font-size:0.78rem;color:var(--text-muted);">
+                                                    @ev.OrganizerName
+                                                </div>
+                                            </td>
+                                            <td style="font-size:0.85rem;white-space:nowrap;">
+                                                @ev.EventDate.ToString("dd.MM.yyyy")
+                                            </td>
+                                            <td>
+                                                <span style="font-size:0.78rem;background:rgba(232,93,38,0.1);color:var(--color-brand);padding:0.2rem 0.6rem;border-radius:99px;white-space:nowrap;">
+                                                    @ev.Category
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @switch (ev.Status)
+                                                {
+                                                    case EventStatus.Published:
+                                                        <span class="status-badge status-published">Yayinda</span>
+                                                        break;
+                                                    case EventStatus.Draft:
+                                                        <span class="status-badge status-draft">Taslak</span>
+                                                        break;
+                                                    case EventStatus.Cancelled:
+                                                        <span class="status-badge status-cancelled">Iptal</span>
+                                                        break;
+                                                    default:
+                                                        <span class="status-badge status-completed">Tamamlandi</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td style="font-size:0.88rem;">
+                                                @ev.CurrentParticipantCount
+                                                @if (ev.MaxCapacity > 0)
+                                                {
+                                                    <span style="color:var(--text-muted);">/@ev.MaxCapacity</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="d-flex gap-1 flex-wrap">
+                                                    <a asp-controller="Event" asp-action="Detail" asp-route-id="@ev.Id"
+                                                       class="btn-ghost btn-sm" title="Goruntule">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a asp-controller="Event" asp-action="Edit" asp-route-id="@ev.Id"
+                                                       class="btn-ghost btn-sm" title="Duzenle">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <!-- Yayinla/Taslaga Al Toggler -->
+                                                    <form asp-controller="Admin" asp-action="ToggleEventStatus" method="post"
+                                                          style="display:inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="id" value="@ev.Id" />
+                                                        <button type="submit"
+                                                                class="btn-ghost btn-sm"
+                                                                title="@(ev.Status == EventStatus.Published ? "Taslaga Al" : "Yayinla")"
+                                                                style="color:@(ev.Status == EventStatus.Published ? "var(--color-warning)" : "var(--color-success)");">
+                                                            <i class="bi bi-@(ev.Status == EventStatus.Published ? "pause-circle" : "play-circle")"></i>
+                                                        </button>
+                                                    </form>
+                                                    <!-- Katilimci Listesi -->
+                                                    <a asp-controller="Admin" asp-action="Participants" asp-route-eventId="@ev.Id"
+                                                       class="btn-ghost btn-sm" title="Katilimcilar">
+                                                        <i class="bi bi-people"></i>
+                                                    </a>
+                                                    <!-- Silme -->
+                                                    <form asp-controller="Admin" asp-action="DeleteEvent" method="post"
+                                                          style="display:inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="id" value="@ev.Id" />
+                                                        <button type="submit"
+                                                                class="btn-danger-soft btn-sm"
+                                                                data-confirm="'@ev.Title' etkinligini silmek istediginizden emin misiniz? Bu islem geri alinamaz."
+                                                                title="Sil">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i class="bi bi-inbox"></i></div>
+                            <h3 class="empty-state-title">Etkinlik Bulunamadi</h3>
+                            <p>Henuz etkinlik olusturulmamis.</p>
+                            <a asp-controller="Event" asp-action="Create" class="btn-brand mt-3">
+                                <i class="bi bi-plus-circle"></i> Ilk Etkinligi Olustur
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

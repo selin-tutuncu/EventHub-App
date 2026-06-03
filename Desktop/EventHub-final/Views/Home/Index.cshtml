@@ -1,0 +1,250 @@
+@model EventHub.ViewModels.HomeViewModel
+@{
+    ViewData["Title"] = "Ana Sayfa";
+    Layout = "_Layout";
+}
+
+<!-- ============================================================
+     HERO BOLUMU
+     ============================================================ -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center g-5">
+
+            <!-- Sol: Baslik ve Akciyonlar -->
+            <div class="col-lg-6">
+                <div class="hero-badge">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                    Etkinlik Yonetim Platformu
+                </div>
+
+                <h1 class="hero-title">
+                    Etkinlikler,<br />
+                    Atölyeler &amp;<br />
+                    <span class="highlight">Deneyimler</span>
+                </h1>
+
+                <p class="hero-subtitle">
+                    Kendi alaninda uzman isimleri dinle, workshop'lara katil,
+                    yeni insanlarla tanış. EventHub ile tum etkinlikleri tek platformda bul.
+                </p>
+
+                <div class="hero-actions">
+                    <a asp-controller="Event" asp-action="Index" class="btn-brand">
+                        <i class="bi bi-calendar2-event"></i>
+                        Etkinlikleri Kesfet
+                    </a>
+                    @if (!User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-controller="Account" asp-action="Register" class="btn-outline-brand">
+                            Hemen Kayit Ol
+                        </a>
+                    }
+                </div>
+
+                <!-- Kucuk Istatistik Pilleri -->
+                <div class="d-flex gap-2 flex-wrap mt-4" style="animation: fade-up 0.7s ease 0.4s both;">
+                    <div class="stat-pill">
+                        <span class="stat-number">@Model.UpcomingEventsCount</span>
+                        <span>Yaklasan Etkinlik</span>
+                    </div>
+                    <div class="stat-pill">
+                        <span class="stat-number">@Model.TotalUsers</span>
+                        <span>Uye</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sag: Yuzuyor Kart -->
+            <div class="col-lg-6 hero-visual d-none d-lg-block">
+                <div class="hero-card-float">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div style="width:44px;height:44px;border-radius:50%;background:var(--gradient-brand);display:flex;align-items:center;justify-content:center;color:white;font-size:1.1rem;">
+                            <i class="bi bi-stars"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight:700;font-size:0.95rem;color:var(--text-primary);">Topluluk Atölyesi</div>
+                            <div style="font-size:0.8rem;color:var(--text-muted);">Bu hafta, 14:00</div>
+                        </div>
+                        <div class="ms-auto">
+                            <span class="status-badge status-published">Acik</span>
+                        </div>
+                    </div>
+                    <div style="height:1px;background:var(--border-color);margin:1rem 0;"></div>
+                    <div class="d-flex flex-column gap-2">
+                        @foreach (var ev in Model.FeaturedEvents.Take(3))
+                        {
+                            <div class="d-flex align-items-center gap-2 p-2" style="border-radius:var(--border-radius-sm);background:var(--bg-accent);">
+                                <div style="width:8px;height:8px;border-radius:50%;background:var(--color-brand);flex-shrink:0;"></div>
+                                <span style="font-size:0.82rem;color:var(--text-primary);font-weight:500;">@ev.Title</span>
+                                <span class="ms-auto" style="font-size:0.75rem;color:var(--text-muted);">@ev.EventDate.ToString("dd MMM")</span>
+                            </div>
+                        }
+                        @if (!Model.FeaturedEvents.Any())
+                        {
+                            <div style="font-size:0.82rem;color:var(--text-muted);text-align:center;padding:1rem;">
+                                Yaklasan etkinlik yok
+                            </div>
+                        }
+                    </div>
+                    <div style="height:1px;background:var(--border-color);margin:1rem 0;"></div>
+                    <div class="d-flex justify-content-between">
+                        <span style="font-size:0.8rem;color:var(--text-muted);">@Model.TotalRegistrations toplam kayit</span>
+                        <span style="font-size:0.8rem;color:var(--color-brand);font-weight:600;">Guncelleniyor...</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     ISTATISTIKLER SEKSI
+     ============================================================ -->
+<section class="section-gap-sm" style="background:var(--bg-secondary);border-top:1px solid var(--border-color);border-bottom:1px solid var(--border-color);">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card animate-on-scroll">
+                <span class="stat-card-icon text-brand"><i class="bi bi-calendar2-event"></i></span>
+                <span class="stat-card-number counter-animate" data-target="@Model.TotalEvents">@Model.TotalEvents</span>
+                <span class="stat-card-label">Toplam Etkinlik</span>
+            </div>
+            <div class="stat-card animate-on-scroll delay-100">
+                <span class="stat-card-icon" style="color:var(--color-accent);"><i class="bi bi-people"></i></span>
+                <span class="stat-card-number counter-animate" data-target="@Model.TotalUsers">@Model.TotalUsers</span>
+                <span class="stat-card-label">Kayitli Uye</span>
+            </div>
+            <div class="stat-card animate-on-scroll delay-200">
+                <span class="stat-card-icon" style="color:var(--color-success);"><i class="bi bi-check2-circle"></i></span>
+                <span class="stat-card-number counter-animate" data-target="@Model.TotalRegistrations">@Model.TotalRegistrations</span>
+                <span class="stat-card-label">Etkinlik Kaydi</span>
+            </div>
+            <div class="stat-card animate-on-scroll delay-300">
+                <span class="stat-card-icon" style="color:var(--color-warning);"><i class="bi bi-lightning-charge-fill"></i></span>
+                <span class="stat-card-number counter-animate" data-target="@Model.UpcomingEventsCount">@Model.UpcomingEventsCount</span>
+                <span class="stat-card-label">Yaklasan Etkinlik</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     ONE CIKAN ETKINLIKLER
+     ============================================================ -->
+<section class="section-gap">
+    <div class="container">
+        <div class="section-header animate-on-scroll">
+            <div class="section-badge">
+                <i class="bi bi-stars"></i> Secili Etkinlikler
+            </div>
+            <h2 class="section-title">Yaklasan Etkinlikler</h2>
+            <p class="section-subtitle">
+                Alaniyla ilgili uzmanlarin sunumlari, uygulamali workshop'lar ve networking firtsatları.
+            </p>
+        </div>
+
+        @if (Model.FeaturedEvents.Any())
+        {
+            <div class="row g-4">
+                @foreach (var ev in Model.FeaturedEvents)
+                {
+                    <div class="col-lg-4 col-md-6">
+                        @await Html.PartialAsync("_EventCard", ev)
+                    </div>
+                }
+            </div>
+
+            <div class="text-center mt-5 animate-on-scroll">
+                <a asp-controller="Event" asp-action="Index" class="btn-outline-brand">
+                    <i class="bi bi-grid-3x3-gap"></i>
+                    Tum Etkinlikleri Gor
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state animate-on-scroll">
+                <div class="empty-state-icon"><i class="bi bi-inbox"></i></div>
+                <h3 class="empty-state-title">Henuz Etkinlik Yok</h3>
+                <p style="font-size:0.9rem;">Yaklasan etkinlikler burada goruntülenecek.</p>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Event" asp-action="Create" class="btn-brand mt-3">
+                        <i class="bi bi-plus-circle"></i> Etkinlik Olustur
+                    </a>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+<!-- ============================================================
+     OZELLIKLER SEKSI
+     ============================================================ -->
+<section class="section-gap" style="background:var(--bg-secondary);border-top:1px solid var(--border-color);">
+    <div class="container">
+        <div class="section-header animate-on-scroll">
+            <div class="section-badge">
+                <i class="bi bi-grid"></i> Neden EventHub?
+            </div>
+            <h2 class="section-title">Her Sey Bir Arada</h2>
+        </div>
+
+        <div class="row g-4">
+            @{
+                // Anonim tip tanimlamasi - her ozellik yalnizca bir kez yazilmali
+                var feat0 = new { Icon = "bi-calendar-plus", Title = "Kolay Etkinlik Olusturma", Desc = "Dakikalar icinde etkinligini yayinla, kontenjan belirle, katilimcilari yonet." };
+                var feat1 = new { Icon = "bi-person-check", Title = "Anlik Kayit", Desc = "Ilgini ceken etkinlige tek tiklama ile kayit ol, hatirlatma al." };
+                var feat2 = new { Icon = "bi-shield-lock", Title = "Guvenli Kimlik Dogrulama", Desc = "Role-based yetkilendirme ile Admin ve kullanici rolleri ayri yonetilir." };
+                var feat3 = new { Icon = "bi-phone", Title = "Responsive Tasarim", Desc = "Her ekran boyutunda kusursuz deneyim. Telefon, tablet, bilgisayar." };
+                var features = new[] { feat0, feat1, feat2, feat3 };
+            }
+            @for (int i = 0; i < features.Length; i++)
+            {
+                var feature = features[i];
+                var delayClass = "delay-" + (i * 100).ToString();
+                <div class="col-lg-3 col-md-6">
+                    <div class="card-base text-center animate-on-scroll @delayClass">
+                        <div style="width:56px;height:56px;border-radius:var(--border-radius-md);background:rgba(232,93,38,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem;color:var(--color-brand);">
+                            <i class="bi @feature.Icon"></i>
+                        </div>
+                        <h5 style="font-size:1rem;margin-bottom:0.5rem;color:var(--text-primary);">@feature.Title</h5>
+                        <p style="font-size:0.85rem;color:var(--text-muted);margin:0;">@feature.Desc</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     CTA (HAREKETE GECIRME) BOLUMU
+     ============================================================ -->
+@if (!User.Identity?.IsAuthenticated == true)
+{
+    <section class="section-gap">
+        <div class="container">
+            <div class="animate-on-scroll" style="background:var(--gradient-brand);border-radius:var(--border-radius-xl);padding:4rem 3rem;text-align:center;position:relative;overflow:hidden;">
+                <div style="position:absolute;top:-60px;right:-60px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.1);"></div>
+                <div style="position:absolute;bottom:-40px;left:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.08);"></div>
+                <h2 style="font-family:'Fraunces',serif;font-size:2.2rem;color:white;margin-bottom:1rem;position:relative;">
+                    Hemen Katilmaya Hazir misin?
+                </h2>
+                <p style="color:rgba(255,255,255,0.85);font-size:1rem;margin-bottom:2rem;position:relative;max-width:480px;margin-left:auto;margin-right:auto;">
+                    Binlerce etkinlige erisim icin simdi ucretsiz kayit ol.
+                </p>
+                <div style="position:relative;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+                    <a asp-controller="Account" asp-action="Register"
+                       style="background:white;color:var(--color-brand);padding:0.8rem 2rem;border-radius:var(--border-radius-md);font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;transition:transform 0.2s;">
+                        <i class="bi bi-person-plus"></i> Ucretsiz Kayit Ol
+                    </a>
+                    <a asp-controller="Event" asp-action="Index"
+                       style="background:rgba(255,255,255,0.15);color:white;padding:0.8rem 2rem;border-radius:var(--border-radius-md);font-weight:600;text-decoration:none;border:2px solid rgba(255,255,255,0.4);display:inline-flex;align-items:center;gap:0.5rem;">
+                        Etkinliklere Goz At
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+}

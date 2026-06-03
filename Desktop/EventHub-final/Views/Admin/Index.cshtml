@@ -1,0 +1,244 @@
+@model EventHub.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Panel";
+}
+
+<!-- Sayfa Basligi -->
+<div class="page-header">
+    <div class="container">
+        <ul class="breadcrumb-custom">
+            <li><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+            <li>Admin Panel</li>
+        </ul>
+        <h1 class="page-header-title">Admin Dashboard</h1>
+        <p class="page-header-subtitle">Platform yonetimi ve istatistikler.</p>
+    </div>
+</div>
+
+<section class="section-gap-sm">
+    <div class="container">
+        <div class="row g-4">
+
+            <!-- Sol: Sidebar Navigasyon -->
+            <div class="col-lg-2 col-md-3">
+                <div class="admin-sidebar animate-on-scroll">
+                    <div class="admin-sidebar-title">Yonetim</div>
+                    <a asp-controller="Admin" asp-action="Index" class="admin-nav-item active">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                    <a asp-controller="Admin" asp-action="Events" class="admin-nav-item">
+                        <i class="bi bi-calendar-event"></i> Etkinlikler
+                    </a>
+                    <a asp-controller="Admin" asp-action="Users" class="admin-nav-item">
+                        <i class="bi bi-people"></i> Kullanicilar
+                    </a>
+                    <div style="height:1px;background:var(--border-color);margin:0.75rem 0;"></div>
+                    <a asp-controller="Event" asp-action="Create" class="admin-nav-item" style="color:var(--color-brand)!important;">
+                        <i class="bi bi-plus-circle"></i> Yeni Etkinlik
+                    </a>
+                    <a asp-controller="Event" asp-action="Index" class="admin-nav-item">
+                        <i class="bi bi-box-arrow-up-right"></i> Siteye Git
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sag: Icerik -->
+            <div class="col-lg-10 col-md-9">
+
+                <!-- Istatistik Kartlari -->
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6 col-xl-3">
+                            <div class="admin-stat-card animate-on-scroll">
+                            <div class="admin-stat-icon orange">
+                                <i class="bi bi-calendar2-event"></i>
+                            </div>
+                            <div>
+                                <div class="admin-stat-value counter-animate" data-target="@Model.TotalEvents">@Model.TotalEvents</div>
+                                <div class="admin-stat-label">Toplam Etkinlik</div>
+                                <div style="font-size:0.75rem;color:var(--color-success);margin-top:0.15rem;">
+                                    @Model.PublishedEvents yayinda
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                            <div class="admin-stat-card animate-on-scroll delay-100">
+                            <div class="admin-stat-icon blue">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                            <div>
+                                <div class="admin-stat-value counter-animate" data-target="@Model.TotalUsers">@Model.TotalUsers</div>
+                                <div class="admin-stat-label">Toplam Kullanici</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                            <div class="admin-stat-card animate-on-scroll delay-200">
+                            <div class="admin-stat-icon green">
+                                <i class="bi bi-clipboard-check"></i>
+                            </div>
+                            <div>
+                                <div class="admin-stat-value counter-animate" data-target="@Model.TotalRegistrations">@Model.TotalRegistrations</div>
+                                <div class="admin-stat-label">Toplam Kayit</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                            <div class="admin-stat-card animate-on-scroll delay-300">
+                            <div class="admin-stat-icon purple">
+                                <i class="bi bi-graph-up-arrow"></i>
+                            </div>
+                            <div>
+                                <div class="admin-stat-value counter-animate" data-target="@Model.TodayRegistrations">@Model.TodayRegistrations</div>
+                                <div class="admin-stat-label">Bugunun Kayitlari</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alt Satir: Son Etkinlikler + Kategori Dagilimi -->
+                <div class="row g-4">
+
+                    <!-- Son Etkinlikler -->
+                    <div class="col-lg-7">
+                        <div class="card-base animate-on-scroll">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <h5 style="font-weight:700;color:var(--text-primary);margin:0;font-size:1rem;">
+                                    <i class="bi bi-clock-history" style="color:var(--color-brand);margin-right:0.5rem;"></i>
+                                    Son Eklenen Etkinlikler
+                                </h5>
+                                <a asp-controller="Admin" asp-action="Events" class="btn-ghost btn-sm">
+                                    Tumu
+                                </a>
+                            </div>
+                            @if (Model.RecentEvents.Any())
+                            {
+                                <div style="overflow-x:auto;">
+                                    <table class="table-custom">
+                                        <thead>
+                                            <tr>
+                                                <th>Etkinlik</th>
+                                                <th>Tarih</th>
+                                                <th>Durum</th>
+                                                <th>Katilimci</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var ev in Model.RecentEvents)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <a asp-controller="Event" asp-action="Detail" asp-route-id="@ev.Id"
+                                                           style="font-weight:600;color:var(--text-primary);font-size:0.88rem;">
+                                                            @(ev.Title.Length > 32 ? ev.Title.Substring(0, 32) + "..." : ev.Title)
+                                                        </a>
+                                                    </td>
+                                                    <td style="font-size:0.82rem;white-space:nowrap;">
+                                                        @ev.EventDate.ToString("dd.MM.yy")
+                                                    </td>
+                                                    <td>
+                                                        @switch (ev.Status)
+                                                        {
+                                                            case EventHub.Models.EventStatus.Published:
+                                                                <span class="status-badge status-published">Yayinda</span>
+                                                                break;
+                                                            case EventHub.Models.EventStatus.Draft:
+                                                                <span class="status-badge status-draft">Taslak</span>
+                                                                break;
+                                                            case EventHub.Models.EventStatus.Cancelled:
+                                                                <span class="status-badge status-cancelled">Iptal</span>
+                                                                break;
+                                                            default:
+                                                                <span class="status-badge status-completed">Tamamlandi</span>
+                                                                break;
+                                                        }
+                                                    </td>
+                                                    <td style="font-size:0.88rem;">
+                                                        @ev.CurrentParticipantCount
+                                                        @if (ev.MaxCapacity > 0)
+                                                        {
+                                                            <span style="color:var(--text-muted);">/@ev.MaxCapacity</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="empty-state" style="padding:2rem;">
+                                    <div class="empty-state-icon" style="font-size:2rem;"><i class="bi bi-inbox"></i></div>
+                                    <p style="font-size:0.88rem;">Etkinlik bulunamadi.</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Kategori Dagilimi -->
+                    <div class="col-lg-5">
+                        <div class="card-base animate-on-scroll delay-100">
+                            <h5 style="font-weight:700;color:var(--text-primary);margin-bottom:1.25rem;font-size:1rem;">
+                                <i class="bi bi-pie-chart" style="color:var(--color-brand);margin-right:0.5rem;"></i>
+                                Kategoriye Gore Dagilim
+                            </h5>
+                            @if (Model.EventsByCategory.Any())
+                            {
+                                var total = Model.EventsByCategory.Values.Sum();
+                                var catNames = new Dictionary<string, string>
+                                {
+                                    {"Workshop","Workshop"}, {"Conference","Konferans"}, {"Seminar","Seminer"},
+                                    {"Networking","Networking"}, {"Hackathon","Hackathon"}, {"Training","Egitim"}, {"Other","Diger"},
+                                    {"Concert","Konser"}, {"Cinema","Sinema"}, {"Theater","Tiyatro"},
+                                    {"Sports","Spor"}, {"Festival","Festival"}, {"Exhibition","Sergi"},
+                                    {"SeminarSeries","Seminer Serisi"}
+                                };
+                                var colors = new[] { "#e85d26", "#2d6a8f", "#27ae60", "#8e44ad", "#f39c12", "#e74c3c", "#95a5a6" };
+                                var i = 0;
+                                foreach (var cat in Model.EventsByCategory.OrderByDescending(x => x.Value))
+                                {
+                                    var pct = total > 0 ? (cat.Value * 100 / total) : 0;
+                                    var color = colors[i % colors.Length];
+                                    var displayName = catNames.ContainsKey(cat.Key) ? catNames[cat.Key] : cat.Key;
+                                    <div class="d-flex align-items-center gap-2 mb-3">
+                                        <div style="width:10px;height:10px;border-radius:50%;background:@color;flex-shrink:0;"></div>
+                                        <div style="flex:1;min-width:0;">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span style="font-size:0.82rem;font-weight:600;color:var(--text-secondary);">@displayName</span>
+                                                <span style="font-size:0.78rem;color:var(--text-muted);">@cat.Value</span>
+                                            </div>
+                                            <div style="height:5px;background:var(--border-color);border-radius:3px;overflow:hidden;">
+                                                <div style="width:@pct%;height:100%;background:@color;border-radius:3px;transition:width 1s ease;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    i++;
+                                }
+                            }
+                            else
+                            {
+                                <p style="color:var(--text-muted);font-size:0.88rem;text-align:center;padding:1.5rem 0;">
+                                    Henuz etkinlik bulunmuyor.
+                                </p>
+                            }
+
+                            <div class="divider"></div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                                <div style="background:rgba(39,174,96,0.1);border-radius:var(--border-radius-sm);padding:0.75rem;text-align:center;">
+                                    <div style="font-size:1.2rem;font-weight:800;color:var(--color-success);">@Model.PublishedEvents</div>
+                                    <div style="font-size:0.75rem;color:var(--text-muted);">Yayinda</div>
+                                </div>
+                                <div style="background:rgba(243,156,18,0.1);border-radius:var(--border-radius-sm);padding:0.75rem;text-align:center;">
+                                    <div style="font-size:1.2rem;font-weight:800;color:var(--color-warning);">@Model.DraftEvents</div>
+                                    <div style="font-size:0.75rem;color:var(--text-muted);">Taslak</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

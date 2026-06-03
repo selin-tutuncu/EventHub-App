@@ -1,0 +1,99 @@
+@model List<EventHub.ViewModels.UserNotificationViewModel>
+@{
+    ViewData["Title"] = "Bildirimler";
+    var unreadCount = Model.Count(n => !n.IsRead);
+}
+
+<div class="page-header">
+    <div class="container">
+        <ul class="breadcrumb-custom">
+            <li><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+            <li><a asp-controller="Account" asp-action="Profile">Profilim</a></li>
+            <li>Bildirimler</li>
+        </ul>
+        <h1 class="page-header-title">Bildirimler</h1>
+        <p class="page-header-subtitle">@unreadCount okunmamış bildirim</p>
+    </div>
+</div>
+
+<section class="section-gap-sm">
+    <div class="container">
+        @if (Model.Any())
+        {
+            <div class="row g-3">
+                @foreach (var notification in Model)
+                {
+                    <div class="col-12">
+                        <div class="card-base animate-on-scroll" style="border-left:4px solid @(notification.IsRead ? "var(--border-color)" : "var(--color-brand)");">
+                            <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                                <div>
+                                    <div style="font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:0.5rem;">
+                                        @if (!notification.IsRead)
+                                        {
+                                            <span style="width:8px;height:8px;border-radius:50%;background:var(--color-brand);display:inline-block;"></span>
+                                        }
+                                        @notification.Title
+                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(notification.EventTitle))
+                                    {
+                                        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.25rem;">
+                                            @notification.EventTitle
+                                        </div>
+                                    }
+                                </div>
+                                <div style="font-size:0.75rem;color:var(--text-muted);">
+                                    @notification.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                                </div>
+                            </div>
+
+                            <p style="margin:1rem 0 0.75rem;color:var(--text-secondary);font-size:0.92rem;">
+                                @notification.Message
+                            </p>
+
+                            @if (notification.RequiresAction && !notification.IsRead && notification.Type == EventHub.Models.NotificationType.WaitlistPromotion)
+                            {
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <form asp-controller="Account" asp-action="AcceptWaitlistNotification" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="notificationId" value="@notification.Id" />
+                                        <button type="submit" class="btn-brand btn-sm">
+                                            <i class="bi bi-check-circle"></i> Evet
+                                        </button>
+                                    </form>
+                                    <form asp-controller="Account" asp-action="DeclineWaitlistNotification" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="notificationId" value="@notification.Id" />
+                                        <button type="submit" class="btn-outline-brand btn-sm">
+                                            <i class="bi bi-x-circle"></i> Hayır
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                            else
+                            {
+                                <div style="font-size:0.78rem;color:var(--text-muted);">
+                                    @if (notification.IsRead)
+                                    {
+                                        <span class="status-badge status-published">Okundu</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-draft">Bekliyor</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state animate-on-scroll">
+                <div class="empty-state-icon"><i class="bi bi-bell"></i></div>
+                <h3 class="empty-state-title">Bildirim Yok</h3>
+                <p>Şu anda görüntülenecek bir bildirim bulunmuyor.</p>
+            </div>
+        }
+    </div>
+</section>

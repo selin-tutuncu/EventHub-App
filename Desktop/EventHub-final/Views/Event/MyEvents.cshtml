@@ -1,0 +1,142 @@
+@model List<EventHub.ViewModels.EventListItemViewModel>
+@using EventHub.Models
+@{
+    ViewData["Title"] = "Etkinliklerim";
+    var confirmed = Model.Where(e => e.UserRegistrationStatus == RegistrationStatus.Confirmed).ToList();
+    var waitlisted = Model.Where(e => e.UserRegistrationStatus == RegistrationStatus.Pending).ToList();
+    var upcoming = confirmed.Where(e => e.EventDate >= DateTime.Now).ToList();
+    var past = confirmed.Where(e => e.EventDate < DateTime.Now).ToList();
+}
+
+<div class="page-header">
+    <div class="container">
+        <ul class="breadcrumb-custom">
+            <li><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+            <li>Etkinliklerim</li>
+        </ul>
+        <h1 class="page-header-title">Etkinliklerim</h1>
+        <p class="page-header-subtitle">Kayit oldugunuz ve bekleme listesindeki etkinlikler.</p>
+    </div>
+</div>
+
+<section class="section-gap-sm">
+    <div class="container">
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="admin-stat-card animate-on-scroll">
+                    <div class="admin-stat-icon orange">
+                        <i class="bi bi-calendar2-check"></i>
+                    </div>
+                    <div>
+                        <div class="admin-stat-value">@Model.Count</div>
+                        <div class="admin-stat-label">Toplam Kayıt</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="admin-stat-card animate-on-scroll delay-100">
+                    <div class="admin-stat-icon green">
+                        <i class="bi bi-clock"></i>
+                    </div>
+                    <div>
+                        <div class="admin-stat-value">@upcoming.Count</div>
+                        <div class="admin-stat-label">Yaklaşan</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="admin-stat-card animate-on-scroll delay-200">
+                    <div class="admin-stat-icon blue">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div>
+                        <div class="admin-stat-value">@past.Count</div>
+                        <div class="admin-stat-label">Tamamlanan</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="admin-stat-card animate-on-scroll delay-300">
+                    <div class="admin-stat-icon orange">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                    <div>
+                        <div class="admin-stat-value">@waitlisted.Count</div>
+                        <div class="admin-stat-label">Bekleme Listesi</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="empty-state animate-on-scroll">
+                <div class="empty-state-icon"><i class="bi bi-inbox"></i></div>
+                <h3 class="empty-state-title">Henüz Etkinlik Yok</h3>
+                <p>Hiç etkinliğe kayıt olmadınız. Etkinliklere göz atarak başlayın.</p>
+                <a asp-controller="Event" asp-action="Index" class="btn-brand mt-3">
+                    <i class="bi bi-calendar2-event"></i> Etkinliklere Göz At
+                </a>
+            </div>
+        }
+        else
+        {
+            @if (waitlisted.Any())
+            {
+                <div class="mb-4">
+                    <h4 style="font-family:'Fraunces',serif;font-size:1.4rem;margin-bottom:1.5rem;color:var(--text-primary);display:flex;align-items:center;gap:0.5rem;">
+                        <i class="bi bi-hourglass-split" style="color:var(--color-brand);"></i>
+                        Bekleme Listesindeki Etkinlikler
+                        <span style="font-size:0.85rem;color:var(--text-muted);font-family:'Outfit',sans-serif;font-weight:500;">(@waitlisted.Count)</span>
+                    </h4>
+                    <div class="row g-4">
+                        @foreach (var ev in waitlisted)
+                        {
+                            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                                @await Html.PartialAsync("_EventCard", ev)
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (upcoming.Any())
+            {
+                <div class="mb-4">
+                    <h4 style="font-family:'Fraunces',serif;font-size:1.4rem;margin-bottom:1.5rem;color:var(--text-primary);display:flex;align-items:center;gap:0.5rem;">
+                        <i class="bi bi-clock" style="color:var(--color-brand);"></i>
+                        Yaklaşan Etkinlikler
+                        <span style="font-size:0.85rem;color:var(--text-muted);font-family:'Outfit',sans-serif;font-weight:500;">(@upcoming.Count)</span>
+                    </h4>
+                    <div class="row g-4">
+                        @foreach (var ev in upcoming)
+                        {
+                            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                                @await Html.PartialAsync("_EventCard", ev)
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (past.Any())
+            {
+                <div>
+                    <h4 style="font-family:'Fraunces',serif;font-size:1.4rem;margin-bottom:1.5rem;color:var(--text-secondary);display:flex;align-items:center;gap:0.5rem;">
+                        <i class="bi bi-check-circle" style="color:var(--color-success);"></i>
+                        Tamamlanan Etkinlikler
+                        <span style="font-size:0.85rem;color:var(--text-muted);font-family:'Outfit',sans-serif;font-weight:500;">(@past.Count)</span>
+                    </h4>
+                    <div class="row g-4" style="opacity:0.7;">
+                        @foreach (var ev in past)
+                        {
+                            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                                @await Html.PartialAsync("_EventCard", ev)
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</section>

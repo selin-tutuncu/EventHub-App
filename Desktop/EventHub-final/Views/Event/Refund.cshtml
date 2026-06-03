@@ -1,0 +1,100 @@
+@model EventHub.ViewModels.EventRefundViewModel
+@{
+    ViewData["Title"] = "Iade";
+}
+
+<div class="page-header">
+    <div class="container">
+        <ul class="breadcrumb-custom">
+            <li><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+            <li><a asp-controller="Event" asp-action="Detail" asp-route-id="@Model.EventId">@Model.EventTitle</a></li>
+            <li>Iade</li>
+        </ul>
+        <h1 class="page-header-title">Ucret Iadesi</h1>
+        <p class="page-header-subtitle">Kayit iptaliyle birlikte demo iade talebi olusturulur.</p>
+    </div>
+</div>
+
+<section class="section-gap-sm">
+    <div class="container">
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-5">
+                <div class="event-info-card">
+                    <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                        <div>
+                            <div class="event-info-label">Etkinlik</div>
+                            <h2 style="font-size:1.45rem;margin:0;color:var(--text-primary);">@Model.EventTitle</h2>
+                        </div>
+                        <span class="badge-paid">@Model.RefundAmount.ToString("N0") TL</span>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="event-info-row">
+                        <div class="event-info-icon"><i class="bi bi-person"></i></div>
+                        <div>
+                            <div class="event-info-label">Odeme Ad Soyad</div>
+                            <div class="event-info-value">@(Model.PaymentFullName ?? "-")</div>
+                        </div>
+                    </div>
+                    <div class="event-info-row">
+                        <div class="event-info-icon"><i class="bi bi-receipt"></i></div>
+                        <div>
+                            <div class="event-info-label">Odeme Referansi</div>
+                            <div class="event-info-value">@(Model.PaymentReference ?? "-")</div>
+                        </div>
+                    </div>
+                    <div class="event-info-row">
+                        <div class="event-info-icon"><i class="bi bi-calendar3"></i></div>
+                        <div>
+                            <div class="event-info-label">Etkinlik Tarihi</div>
+                            <div class="event-info-value">@Model.EventDate.ToString("dd MMMM yyyy, HH:mm", new System.Globalization.CultureInfo("tr-TR"))</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card-base">
+                    <h3 style="font-size:1.1rem;margin-bottom:1rem;color:var(--text-primary);">
+                        <i class="bi bi-arrow-counterclockwise" style="color:var(--color-brand);"></i> Iade Onayi
+                    </h3>
+                    <div class="alert-custom alert-warning mb-4">
+                        <span class="alert-icon"><i class="bi bi-exclamation-triangle"></i></span>
+                        <span>Onayladiginizda etkinlik kaydiniz iptal edilir ve @Model.RefundAmount.ToString("N0") TL iade talebi kayda islenir.</span>
+                    </div>
+
+                    <form asp-action="ConfirmRefund" asp-controller="Event" method="post" data-loading="true">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="RegistrationId" />
+                        <input type="hidden" asp-for="EventId" />
+                        <input type="hidden" asp-for="EventTitle" />
+                        <input type="hidden" asp-for="EventDate" />
+                        <input type="hidden" asp-for="RefundAmount" />
+                        <input type="hidden" asp-for="PaymentFullName" />
+                        <input type="hidden" asp-for="PaymentReference" />
+
+                        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+                        <div class="form-group">
+                            <label asp-for="RefundNote" class="form-label-custom"></label>
+                            <textarea asp-for="RefundNote" class="form-control-custom" rows="3"
+                                      placeholder="Iade icin eklemek istediginiz not..."></textarea>
+                            <span asp-validation-for="RefundNote"></span>
+                        </div>
+
+                        <button type="submit" class="btn-danger-soft w-100 justify-content-center"
+                                data-confirm="Kaydinizi iptal edip iade talebi olusturmak istediginizden emin misiniz?">
+                            <i class="bi bi-x-circle"></i> Kaydimi Iptal Et ve Iade Talep Et
+                        </button>
+                        <a asp-action="Detail" asp-route-id="@Model.EventId" class="btn-ghost w-100 justify-content-center mt-2">
+                            Vazgec
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

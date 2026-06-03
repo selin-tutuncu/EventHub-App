@@ -1,0 +1,72 @@
+@{
+    ViewData["Title"] = "Iletisim";
+}
+
+<div class="page-header">
+    <div class="container">
+        <ul class="breadcrumb-custom">
+            <li><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+            <li>Iletisim</li>
+        </ul>
+        <h1 class="page-header-title">Iletisim</h1>
+        <p class="page-header-subtitle">Sorulariniz icin bize ulasın.</p>
+    </div>
+</div>
+
+<section class="section-gap">
+    <div class="container">
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-5">
+                <div class="card-base animate-on-scroll">
+                    <h4 style="font-family:'Fraunces',serif;margin-bottom:1.5rem;color:var(--text-primary);">
+                        Mesaj Gonder
+                    </h4>
+                    <div class="form-group">
+                        <label class="form-label-custom">Adiniz Soyadiniz</label>
+                        <input type="text" class="form-control-custom" placeholder="Ad Soyad" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label-custom">E-posta</label>
+                        <input type="email" class="form-control-custom" placeholder="ornek@email.com" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label-custom">Konu</label>
+                        <input type="text" class="form-control-custom" placeholder="Konu basligı" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label-custom">Mesajınız</label>
+                        <textarea class="form-control-custom" rows="5" placeholder="Mesajinizi yazin..." style="resize:none;"></textarea>
+                    </div>
+                    <button class="btn-brand w-100" style="justify-content:center;" onclick="showToast('Mesajiniz alindi! En kisa surede donecegiz.','success');return false;">
+                        <i class="bi bi-send"></i> Gonder
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card-base animate-on-scroll delay-200">
+                    <h4 style="font-family:'Fraunces',serif;margin-bottom:1.5rem;color:var(--text-primary);">
+                        Iletisim Bilgileri
+                    </h4>
+                    @{
+                        var contacts = new[]
+                        {
+                            new { Icon = "bi-envelope", Label = "E-posta", Value = "info@eventhub.com" },
+                            new { Icon = "bi-geo-alt", Label = "Adres", Value = "Istanbul, Turkiye" },
+                            new { Icon = "bi-clock", Label = "Calisma Saatleri", Value = "Pazartesi - Cuma, 09:00-18:00" }
+                        };
+                    }
+                    @foreach (var c in contacts)
+                    {
+                        <div class="event-info-row">
+                            <div class="event-info-icon"><i class="bi @c.Icon"></i></div>
+                            <div>
+                                <div class="event-info-label">@c.Label</div>
+                                <div class="event-info-value">@c.Value</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,301 @@
+@model EventHub.ViewModels.ProfilePageViewModel
+@{
+    ViewData["Title"] = "Profilim";
+    var profileInitial = string.IsNullOrWhiteSpace(Model.FullName)
+        ? "U"
+        : Model.FullName.Substring(0, 1).ToUpper();
+    var editPanelClass = Model.IsEditPanelOpen ? "" : "d-none";
+    var passwordPanelClass = Model.IsPasswordPanelOpen ? "" : "d-none";
+}
+
+<div class="page-header">
+    <div class="container">
+        <ul class="breadcrumb-custom">
+            <li><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+            <li>Profilim</li>
+        </ul>
+        <h1 class="page-header-title">Profilim</h1>
+        <p class="page-header-subtitle">Profil bilgilerini duzenle, sifreni degistir ve etkinliklerini yonet.</p>
+    </div>
+</div>
+
+<section class="section-gap-sm">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card-base animate-on-scroll text-center" style="padding:2.5rem;">
+                    <div class="profile-avatar mb-3">
+                        @if (!string.IsNullOrWhiteSpace(Model.ProfileImageUrl))
+                        {
+                            <img src="@Model.ProfileImageUrl" alt="@Model.FullName" />
+                        }
+                        else
+                        {
+                            <span>@profileInitial</span>
+                        }
+                    </div>
+
+                    <h3 style="font-family:'Fraunces',serif;font-size:1.4rem;margin-bottom:0.25rem;color:var(--text-primary);">
+                        @Model.FullName
+                    </h3>
+                    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem;">
+                        @Model.Email
+                    </p>
+
+                    <span class="status-badge @(Model.RoleName == "Admin" ? "role-admin" : "role-user")"
+                          style="margin-bottom:1rem;display:inline-flex;">
+                        <i class="bi @(Model.RoleName == "Admin" ? "bi-shield-fill-check" : "bi-person-fill")"></i>
+                        @(Model.RoleName == "Admin" ? "Admin" : "Kullanici")
+                    </span>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Bio))
+                    {
+                        <div class="divider"></div>
+                        <p style="font-size:0.88rem;color:var(--text-secondary);line-height:1.7;">
+                            @Model.Bio
+                        </p>
+                    }
+
+                    <div class="divider"></div>
+
+                    <div class="profile-stats-grid">
+                        <div class="profile-stat">
+                            <div class="profile-stat-value">@Model.TotalRegistrations</div>
+                            <div class="profile-stat-label">Toplam Kayit</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="profile-stat-value">@Model.UpcomingRegistrations</div>
+                            <div class="profile-stat-label">Yaklasan</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="profile-stat-value">@Model.PastRegistrations</div>
+                            <div class="profile-stat-label">Gecmis</div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div style="font-size:0.78rem;color:var(--text-muted);">
+                        <i class="bi bi-calendar3"></i>
+                        Uyelik: @Model.CreatedAt.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("tr-TR"))
+                    </div>
+                </div>
+
+                <div class="card-base mt-4 animate-on-scroll delay-100">
+                    <h6 style="font-size:0.78rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem;">
+                        Hizli Erisim
+                    </h6>
+                    <a asp-controller="Event" asp-action="MyEvents" class="admin-nav-item" style="text-decoration:none;">
+                        <i class="bi bi-calendar-check"></i> Etkinliklerim
+                    </a>
+                    <a asp-controller="Event" asp-action="Index" class="admin-nav-item" style="text-decoration:none;">
+                        <i class="bi bi-grid"></i> Tum Etkinlikler
+                    </a>
+                    @if (Model.RoleName == "Admin")
+                    {
+                        <a asp-controller="Admin" asp-action="Index" class="admin-nav-item" style="text-decoration:none;color:var(--color-brand)!important;">
+                            <i class="bi bi-speedometer2"></i> Admin Panel
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card-base mb-4 animate-on-scroll">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+                        <h5 style="font-weight:700;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:0.5rem;">
+                            <i class="bi bi-person-badge" style="color:var(--color-brand);"></i>
+                            Hesap Bilgileri
+                        </h5>
+
+                        <button type="button"
+                                class="btn-ghost btn-sm"
+                                data-toggle-panel="profileEditPanel"
+                                data-scroll-target="profileEditPanel">
+                            <i class="bi bi-pencil-square"></i>
+                            Profili Duzenle
+                        </button>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="profile-info-box">
+                                <div class="profile-info-label">Kullanici Adi</div>
+                                <div class="profile-info-value">@Model.FullName</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="profile-info-box">
+                                <div class="profile-info-label">E-posta</div>
+                                <div class="profile-info-value">@Model.Email</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="profile-info-box">
+                                <div class="profile-info-label">Uyelik Tarihi</div>
+                                <div class="profile-info-value">
+                                    @Model.CreatedAt.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("tr-TR"))
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="profile-info-box">
+                                <div class="profile-info-label">Rol</div>
+                                <div class="profile-info-value">@Model.RoleName</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="profileEditPanel" class="card-base animate-on-scroll @editPanelClass">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+                        <h5 style="font-weight:700;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:0.5rem;">
+                            <i class="bi bi-pencil-square" style="color:var(--color-brand);"></i>
+                            Profili Duzenle
+                        </h5>
+
+                        <button type="button"
+                                class="btn-ghost btn-sm"
+                                data-toggle-panel="profileEditPanel">
+                            <i class="bi bi-x-lg"></i>
+                            Kapat
+                        </button>
+                    </div>
+
+                    <form asp-action="UpdateProfile" asp-controller="Account" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+                        <div class="form-group">
+                            <label asp-for="Edit.FullName" class="form-label-custom"></label>
+                            <input asp-for="Edit.FullName" class="form-control-custom" />
+                            <span asp-validation-for="Edit.FullName" class="field-validation-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Edit.Bio" class="form-label-custom"></label>
+                            <textarea asp-for="Edit.Bio" class="form-control-custom" rows="4" style="resize:none;"></textarea>
+                            <span asp-validation-for="Edit.Bio" class="field-validation-error"></span>
+                        </div>
+
+                        <input asp-for="Edit.ProfileImageUrl" type="hidden" />
+
+                        <div class="form-group">
+                            <label asp-for="Edit.ProfileImageFile" class="form-label-custom"></label>
+                            <div class="profile-upload-box">
+                                <input asp-for="Edit.ProfileImageFile" class="form-control-custom" type="file" accept="image/*" />
+                            </div>
+                            <span asp-validation-for="Edit.ProfileImageFile" class="field-validation-error"></span>
+                            <div class="password-help">
+                                Bilgisayarindan bir resim sec. Bu dosya sisteme kaydedilir ve program yeniden acildiginda da gorunmeye devam eder.
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.ProfileImageUrl))
+                        {
+                            <div class="profile-preview-card">
+                                <img src="@Model.ProfileImageUrl" alt="Profil gorseli" />
+                                <div>
+                                    <strong>Mevcut profil gorseli</strong>
+                                    <p>Yeni bir dosya secersen bu gorsel guncellenir.</p>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="profile-action-row">
+                            <button type="submit" class="btn-brand" style="justify-content:center;">
+                                <i class="bi bi-check2-circle"></i>
+                                Profili Guncelle
+                            </button>
+
+                            <button type="button"
+                                    class="btn-outline-brand"
+                                    data-toggle-panel="passwordPanel"
+                                    data-scroll-target="passwordPanel">
+                                <i class="bi bi-shield-lock"></i>
+                                Sifre Degistir
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="passwordPanel" class="card-base mt-4 animate-on-scroll @passwordPanelClass">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+                        <h5 style="font-weight:700;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:0.5rem;">
+                            <i class="bi bi-shield-lock" style="color:var(--color-brand);"></i>
+                            Sifre Degistir
+                        </h5>
+
+                        <button type="button"
+                                class="btn-ghost btn-sm"
+                                data-toggle-panel="passwordPanel">
+                            <i class="bi bi-x-lg"></i>
+                            Kapat
+                        </button>
+                    </div>
+
+                    <form asp-action="ChangePassword" asp-controller="Account" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+                        <div class="form-group">
+                            <label asp-for="Password.CurrentPassword" class="form-label-custom"></label>
+                            <div class="password-field">
+                                <input asp-for="Password.CurrentPassword" id="CurrentPasswordInput" class="form-control-custom password-field-input" type="password" autocomplete="current-password" />
+                                <button type="button"
+                                        class="password-toggle-btn"
+                                        data-password-target="CurrentPasswordInput"
+                                        aria-label="Mevcut sifreyi goster veya gizle">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Password.CurrentPassword" class="field-validation-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Password.NewPassword" class="form-label-custom"></label>
+                            <div class="password-field">
+                                <input asp-for="Password.NewPassword" id="NewPasswordInput" class="form-control-custom password-field-input" type="password" autocomplete="new-password" />
+                                <button type="button"
+                                        class="password-toggle-btn"
+                                        data-password-target="NewPasswordInput"
+                                        aria-label="Yeni sifreyi goster veya gizle">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Password.NewPassword" class="field-validation-error"></span>
+                            <div class="password-help">
+                                En az 8 karakter, 1 buyuk harf, 1 kucuk harf, 1 rakam ve 1 ozel karakter.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Password.ConfirmPassword" class="form-label-custom"></label>
+                            <div class="password-field">
+                                <input asp-for="Password.ConfirmPassword" id="ConfirmPasswordInput" class="form-control-custom password-field-input" type="password" autocomplete="new-password" />
+                                <button type="button"
+                                        class="password-toggle-btn"
+                                        data-password-target="ConfirmPasswordInput"
+                                        aria-label="Sifre tekrarini goster veya gizle">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Password.ConfirmPassword" class="field-validation-error"></span>
+                        </div>
+
+                        <button type="submit" class="btn-brand w-100" style="justify-content:center;">
+                            <i class="bi bi-key"></i>
+                            Sifreyi Guncelle
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

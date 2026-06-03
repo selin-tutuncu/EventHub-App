@@ -1,0 +1,49 @@
+@{
+    ViewData["Title"] = "Gizlilik Politikasi";
+}
+
+<div class="page-header">
+    <div class="container">
+        <ul class="breadcrumb-custom">
+            <li><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+            <li>Gizlilik Politikasi</li>
+        </ul>
+        <h1 class="page-header-title">Gizlilik Politikasi</h1>
+        <p class="page-header-subtitle">Son guncelleme: @DateTime.Now.ToString("MMMM yyyy", new System.Globalization.CultureInfo("tr-TR"))</p>
+    </div>
+</div>
+
+<section class="section-gap">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card-base animate-on-scroll">
+                    @{
+                        var sections = new[]
+                        {
+                            new { Title = "1. Veri Toplama", Content = "EventHub platformunda kayit oldugunuzda ad-soyad, e-posta adresi ve istedegıniz takdirde biyografi bilgileriniz toplanir. Bu bilgiler yalnizca platform islevleri icin kullanilir." },
+                            new { Title = "2. Veri Kullanimi", Content = "Toplanan veriler; hesap yonetimi, etkinlik kayitlari ve size ozel bildirimler icin kullanilir. Uçuncu taraflarla paylasilmaz." },
+                            new { Title = "3. Cerezler", Content = "Platformumuz oturum yonetimi ve kullanici tercihlerinizi hatirlamak icin cerez kullanir. Tarayici ayarlarinizdan cerezleri yonetebilirsiniz." },
+                            new { Title = "4. Veri Guvenligi", Content = "Sifreler BCrypt algoritmasiyla hashlenerek saklanir. SSL/TLS sifreleme ile veri transferi guvenle gerceklestirilir." },
+                            new { Title = "5. KVKK Haklari", Content = "6698 sayili Kisisel Verilerin Korunmasi Kanunu kapsaminda verilerinize erisim, duzeltme veya silme talebinde bulunabilirsiniz. info@eventhub.com adresine ulasabilirsiniz." }
+                        };
+                    }
+                    @for (int si = 0; si < sections.Length; si++)
+                    {
+                        var s = sections[si];
+                        <div style="margin-bottom:1.75rem;">
+                            <h4 style="font-weight:700;color:var(--text-primary);margin-bottom:0.75rem;font-size:1.05rem;">
+                                @s.Title
+                            </h4>
+                            <p style="color:var(--text-secondary);line-height:1.8;margin:0;">@s.Content</p>
+                        </div>
+                        if (si < sections.Length - 1)
+                        {
+                            <div class="divider"></div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
