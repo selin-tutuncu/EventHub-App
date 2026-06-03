@@ -4,7 +4,6 @@
     ViewData["Title"] = "Yeni Etkinlik Olustur";
 }
 
-<!-- Sayfa Basligi -->
 <div class="page-header">
     <div class="container">
         <ul class="breadcrumb-custom">
@@ -25,17 +24,14 @@
                 <form asp-action="Create" asp-controller="Event" method="post" data-loading="true" enctype="multipart/form-data">
                     @Html.AntiForgeryToken()
 
-                    <!-- Validasyon ozeti -->
                     <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
 
-                    <!-- TEMEL BILGILER KARTI -->
                     <div class="card-base mb-4 animate-on-scroll">
                         <h5 style="font-weight:700;color:var(--text-primary);margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;">
                             <span style="width:28px;height:28px;background:var(--gradient-brand);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:0.8rem;font-weight:800;flex-shrink:0;">1</span>
                             Temel Bilgiler
                         </h5>
 
-                        <!-- Etkinlik Basligi -->
                         <div class="form-group">
                             <label asp-for="Title" class="form-label-custom"></label>
                             <input asp-for="Title" class="form-control-custom"
@@ -43,7 +39,6 @@
                             <span asp-validation-for="Title" class="field-validation-error"></span>
                         </div>
 
-                        <!-- Kisa Ozet -->
                         <div class="form-group">
                             <label asp-for="Summary" class="form-label-custom"></label>
                             <input asp-for="Summary" class="form-control-custom"
@@ -51,7 +46,6 @@
                             <span asp-validation-for="Summary" class="field-validation-error"></span>
                         </div>
 
-                        <!-- Aciklama -->
                         <div class="form-group">
                             <label asp-for="Description" class="form-label-custom"></label>
                             <textarea asp-for="Description" class="form-control-custom"
@@ -61,7 +55,6 @@
                             <span asp-validation-for="Description" class="field-validation-error"></span>
                         </div>
 
-                        <!-- Kategori ve Durum yan yana -->
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="form-group mb-0">
@@ -85,7 +78,6 @@
                         </div>
                     </div>
 
-                    <!-- TARIH VE KONUM KARTI -->
                     <div class="card-base mb-4 animate-on-scroll delay-100">
                         <h5 style="font-weight:700;color:var(--text-primary);margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;">
                             <span style="width:28px;height:28px;background:var(--gradient-brand);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:0.8rem;font-weight:800;flex-shrink:0;">2</span>
@@ -98,6 +90,7 @@
                                     <label asp-for="EventDate" class="form-label-custom"></label>
                                     <input asp-for="EventDate" type="datetime-local"
                                            asp-format="{0:yyyy-MM-ddTHH:mm}"
+                                           min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"
                                            class="form-control-custom" />
                                     <span asp-validation-for="EventDate" class="field-validation-error"></span>
                                 </div>
@@ -107,6 +100,7 @@
                                     <label asp-for="EndDate" class="form-label-custom"></label>
                                     <input asp-for="EndDate" type="datetime-local"
                                            asp-format="{0:yyyy-MM-ddTHH:mm}"
+                                           min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"
                                            class="form-control-custom" />
                                     <span asp-validation-for="EndDate" class="field-validation-error"></span>
                                 </div>
@@ -128,7 +122,6 @@
                         </div>
                     </div>
 
-                    <!-- KONTENJAN VE UCRET KARTI -->
                     <div class="card-base mb-4 animate-on-scroll delay-200">
                         <h5 style="font-weight:700;color:var(--text-primary);margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;">
                             <span style="width:28px;height:28px;background:var(--gradient-brand);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:0.8rem;font-weight:800;flex-shrink:0;">3</span>
@@ -166,7 +159,6 @@
 
                         <div class="divider"></div>
 
-                        <!-- Ucret Toggle -->
                         <div class="d-flex align-items-center justify-content-between mb-3">
                             <div>
                                 <label asp-for="IsPaid" class="form-label-custom mb-0"></label>
@@ -198,7 +190,6 @@
                         </div>
                     </div>
 
-                    <!-- AKSIYONLAR -->
                     <div class="d-flex gap-3 justify-content-end animate-on-scroll delay-300">
                         <a asp-controller="Admin" asp-action="Events" class="btn-ghost">
                             <i class="bi bi-x-circle"></i> Vazgec

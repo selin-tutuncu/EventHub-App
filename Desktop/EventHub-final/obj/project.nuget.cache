@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "D3E9BtrjY5ERjAYOvZTX0evGt8vsdx4ugGMYzbXwRvg2CeosnylBreZo3LCEoNYhJdH+/3ZrulfkKO6hMO2qUg==",
+  "dgSpecHash": "1Nbzydu93kxPTVC4VbwQqyoyYZb6ha1/nqXOIrZRhxMljNL+ksitc4lUgDDMUKaRZgGqfkMwwmZipt+OvUvzbw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\selin\\Desktop\\EventHub-final\\EventHub.csproj",
+  "projectFilePath": "C:\\Users\\selin\\Desktop\\EventHub-App\\Desktop\\EventHub-final\\EventHub.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\selin\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\selin\\.nuget\\packages\\closedxml\\0.102.2\\closedxml.0.102.2.nupkg.sha512",

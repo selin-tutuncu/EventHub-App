@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\selin\\Desktop\\EventHub-final\\EventHub.csproj": {}
+    "C:\\Users\\selin\\Desktop\\EventHub-App\\Desktop\\EventHub-final\\EventHub.csproj": {}
   },
   "projects": {
-    "C:\\Users\\selin\\Desktop\\EventHub-final\\EventHub.csproj": {
+    "C:\\Users\\selin\\Desktop\\EventHub-App\\Desktop\\EventHub-final\\EventHub.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\selin\\Desktop\\EventHub-final\\EventHub.csproj",
+        "projectUniqueName": "C:\\Users\\selin\\Desktop\\EventHub-App\\Desktop\\EventHub-final\\EventHub.csproj",
         "projectName": "EventHub",
-        "projectPath": "C:\\Users\\selin\\Desktop\\EventHub-final\\EventHub.csproj",
+        "projectPath": "C:\\Users\\selin\\Desktop\\EventHub-App\\Desktop\\EventHub-final\\EventHub.csproj",
         "packagesPath": "C:\\Users\\selin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\selin\\Desktop\\EventHub-final\\obj\\",
+        "outputPath": "C:\\Users\\selin\\Desktop\\EventHub-App\\Desktop\\EventHub-final\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\selin\\AppData\\Roaming\\NuGet\\NuGet.Config"

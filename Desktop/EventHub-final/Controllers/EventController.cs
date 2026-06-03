@@ -29,6 +29,13 @@ namespace EventHub.Controllers
             _environment = environment;
         }
 
+        // --- YARDIMCI METOT: TURKIYE SAATINI ALMAK ICIN ---
+        private DateTime GetTurkeyTime()
+        {
+            var turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, turkeyTimeZone);
+        }
+
         // ----------------------------------------------------------------
         // LISTELEME VE DETAY
         // ----------------------------------------------------------------
@@ -101,15 +108,20 @@ namespace EventHub.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(EventFormViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            // 1. TARIH KONTROLU: Baslangic tarihi gecmis olamaz
+            if (model.EventDate < GetTurkeyTime())
+            {
+                ModelState.AddModelError("EventDate", "Etkinlik baslangic tarihi gecmis bir zaman olamaz.");
+            }
 
-            // Bitis tarihi baslangictan once olamaz
+            // 2. TARIH KONTROLU: Bitis tarihi baslangictan once olamaz
             if (model.EndDate.HasValue && model.EndDate < model.EventDate)
             {
                 ModelState.AddModelError("EndDate", "Bitis tarihi baslangic tarihinden once olamaz.");
-                return View(model);
             }
+
+            if (!ModelState.IsValid)
+                return View(model);
 
             model.CoverImageUrl = await ResolveCoverImageAsync(model.CoverImageFile, null, model.CoverImageUrl);
 
@@ -168,14 +180,15 @@ namespace EventHub.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(EventFormViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
-
+            // Edit isleminde sadece Bitis tarihinin Baslangictan kucuk olup olmadigini kontrol ediyoruz. 
+            // Gecmiste baslamis bir etkinlik guncelleniyor olabilir.
             if (model.EndDate.HasValue && model.EndDate < model.EventDate)
             {
                 ModelState.AddModelError("EndDate", "Bitis tarihi baslangic tarihinden once olamaz.");
-                return View(model);
             }
+
+            if (!ModelState.IsValid)
+                return View(model);
 
             var existing = await _eventService.GetEventDetailAsync(model.Id, isAdmin: true);
             if (existing == null)
